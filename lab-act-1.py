@@ -5,7 +5,7 @@
 import cs50
 import sys
 
-from helpers import get_first_name, get_last_name
+from helpers import get_name
 
 def main_menu():
     print("Main Menu\nWhat would you like  to do?")
@@ -45,9 +45,11 @@ def add_contact():
     # Prompt for first name, last name, address, and contact number
     print("\nFill up the details for the new contact")
     
-    first_name = get_first_name()
-    last_name = get_last_name()
+    first_name = get_name("first_name")
+    last_name = get_name("last_name")
+    # address = get_address()
 
+    print(first_name, last_name)
     print("successfully got the name")
     # main_menu()
 
