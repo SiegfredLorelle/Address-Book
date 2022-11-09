@@ -5,31 +5,36 @@
 import cs50
 import sys
 import tkinter as tk
+from tkinter import messagebox  
 
 from helpers import get_name, get_house_number, get_street_vilage, get_city_municipality, get_province, get_country
 
 
 def show_frame(frame):
     frame.tkraise()
+    
 
-window = tk.Tk()
-window.geometry("500x500")
-window.grid_rowconfigure(0, weight=1)
-window.grid_columnconfigure(0, weight=1)
+# Configure root
+root = tk.Tk()
+root.geometry("500x500")
+root.grid_rowconfigure(0, weight=1)
+root.grid_columnconfigure(0, weight=1)
+root.title("Address Book")
 
+# Create frame for every functionality of the address book
+main_menu = tk.Frame(root, bg='#EFF5F5')
+add_contact = tk.Frame(root, bg="gray")
+edit_contact = tk.Frame(root, bg='#EFF5F5')
+delete_contact = tk.Frame(root, bg="blue")
+view_contact = tk.Frame(root, bg='#EFF5F5')
+search_contact = tk.Frame(root, bg='#EFF5F5')
 
-main_menu = tk.Frame(window, bg='#EFF5F5')
-add_contact = tk.Frame(window, bg="gray")
-edit_contact = tk.Frame(window, bg='#EFF5F5')
-delete_contact = tk.Frame(window, bg="blue")
-view_contact = tk.Frame(window, bg='#EFF5F5')
-search_contact = tk.Frame(window, bg='#EFF5F5')
-
+# Create grid for every page frame
 for frame in [main_menu, add_contact, edit_contact, delete_contact, view_contact, search_contact]:
         frame.grid(row=0, column=0, sticky="nsew")
 
-# Main Menu
-
+# Main Menu (mm in var stands for main menu)
+# Configure the number of rows and column main menu have
 main_menu.grid_rowconfigure(0, weight=1)
 main_menu.grid_rowconfigure(1, weight=1)
 main_menu.grid_rowconfigure(2, weight=1)
@@ -40,36 +45,42 @@ main_menu.grid_rowconfigure(6, weight=1)
 main_menu.grid_rowconfigure(7, weight=1)
 main_menu.grid_columnconfigure(0, weight=1)
 
+# Title and description 
+mm_title = tk.Label(main_menu, text="Main Menu", font=("Arial", 24), fg="white", bg="#497174")
+mm_title.grid(row=0, column=0, sticky="NESW")
 
+mm_description = tk.Label(main_menu, text="What do you want to do?", font=("Arial", 18), bg="#EFF5F5")
+mm_description.grid(row=1, column=0, sticky="NESW")
 
-main_menu_title = tk.Label(main_menu, text="Main Menu", font=("Arial", 24), fg="white", bg="#497174")
-main_menu_title.grid(row=0, column=0, sticky="NESW")
-
-main_menu_description = tk.Label(main_menu, text="What do you want to do?", font=("Arial", 18), bg="#EFF5F5")
-main_menu_description.grid(row=1, column=0, sticky="NESW")
-
-mm_add_btn = tk.Button(main_menu, text="1 - Add Contact", font=("Arial", 12), bg="#D6E4E5", command=lambda:show_frame(add_contact))
+# Buttons leading to other frames
+mm_add_btn = tk.Button(main_menu, text="Add Contact", font=("Arial", 12), bg="#D6E4E5", command=lambda:show_frame(add_contact))
 mm_add_btn.grid(row=2, column=0, sticky="NESW")
 
-mm_edit_btn = tk.Button(main_menu, text="2 - Edit Contact", font=("Arial", 12), bg="#D6E4E5", command=lambda:show_frame(edit_contact))
+mm_edit_btn = tk.Button(main_menu, text="Edit Contact", font=("Arial", 12), bg="#D6E4E5", command=lambda:show_frame(edit_contact))
 mm_edit_btn.grid(row=3, column=0, sticky="NESW")
 
-mm_del_btn = tk.Button(main_menu, text="3 - Delete Contact", font=("Arial", 12), bg="#D6E4E5", command=lambda:show_frame(delete_contact))
+mm_del_btn = tk.Button(main_menu, text="Delete Contact", font=("Arial", 12), bg="#D6E4E5", command=lambda:show_frame(delete_contact))
 mm_del_btn.grid(row=4, column=0, sticky="NESW")
 
-mm_view_btn = tk.Button(main_menu, text="4 - View Contacts", font=("Arial", 12), bg="#D6E4E5", command=lambda:show_frame(view_contact))
+mm_view_btn = tk.Button(main_menu, text="View Contacts", font=("Arial", 12), bg="#D6E4E5", command=lambda:show_frame(view_contact))
 mm_view_btn.grid(row=5, column=0, sticky="NESW")
 
-mm_search_btn = tk.Button(main_menu, text="5 - Search Address Book", font=("Arial", 12), bg="#D6E4E5", command=lambda:show_frame(search_contact))
+mm_search_btn = tk.Button(main_menu, text="Search Address Book", font=("Arial", 12), bg="#D6E4E5", command=lambda:show_frame(search_contact))
 mm_search_btn.grid(row=6, column=0, sticky="NESW")
 
-mm_exit_btn = tk.Button(main_menu, text="6 - Exit", font=("Arial", 12), bg="#D6E4E5", command=lambda:show_frame(exit))
+mm_exit_btn = tk.Button(main_menu, text="Exit", font=("Arial", 12), bg="#D6E4E5", command=lambda:on_closing())
 mm_exit_btn.grid(row=7, column=0, sticky="NESW")
 
+# Starting frame
 show_frame(main_menu)
 
+# Ask again if user really want to exit
+def on_closing():
+    if messagebox.askyesno(title="Exit?", message="Do you really want to close 'Address Book'?"):
+        root.destroy()
 
-window.mainloop()
+root.protocol("WM_DELETE_WINDOW", on_closing)
+root.mainloop()
 
 
 
