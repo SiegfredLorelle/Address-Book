@@ -10,9 +10,21 @@ from tkinter import messagebox
 from helpers import get_name, get_house_number, get_street_vilage, get_city_municipality, get_province, get_country
 
 
+# Redirect to new frame
 def show_frame(frame):
     frame.tkraise()
-    
+
+# Check information about contact's details
+def check_infos():
+    print(a_country_input.get())
+    pass
+
+# Ask again if user really want to exit
+def on_closing():
+    if messagebox.askyesno(title="Exit?", message="Do you really want to close 'Address Book'?"):
+        root.destroy()
+
+
 
 # Configure root
 root = tk.Tk()
@@ -22,12 +34,12 @@ root.grid_columnconfigure(0, weight=1)
 root.title("Address Book")
 
 # Create frame for every functionality of the address book
-main_menu = tk.Frame(root, bg='#EFF5F5')
-add_contact = tk.Frame(root, bg="gray")
-edit_contact = tk.Frame(root, bg='#EFF5F5')
-delete_contact = tk.Frame(root, bg="blue")
-view_contact = tk.Frame(root, bg='#EFF5F5')
-search_contact = tk.Frame(root, bg='#EFF5F5')
+main_menu = tk.Frame(root, bg="#EFF5F5")
+add_contact = tk.Frame(root, bg="#EFF5F5")
+edit_contact = tk.Frame(root, bg="#EFF5F5")
+delete_contact = tk.Frame(root, bg="#EFF5F5")
+view_contact = tk.Frame(root, bg="#EFF5F5")
+search_contact = tk.Frame(root, bg="#EFF5F5")
 
 # Create grid for every page frame
 for frame in [main_menu, add_contact, edit_contact, delete_contact, view_contact, search_contact]:
@@ -35,14 +47,8 @@ for frame in [main_menu, add_contact, edit_contact, delete_contact, view_contact
 
 # Main Menu (mm in var stands for main menu)
 # Configure the number of rows and column main menu have
-main_menu.grid_rowconfigure(0, weight=1)
-main_menu.grid_rowconfigure(1, weight=1)
-main_menu.grid_rowconfigure(2, weight=1)
-main_menu.grid_rowconfigure(3, weight=1)
-main_menu.grid_rowconfigure(4, weight=1)
-main_menu.grid_rowconfigure(5, weight=1)
-main_menu.grid_rowconfigure(6, weight=1)
-main_menu.grid_rowconfigure(7, weight=1)
+for number in range(8):
+    main_menu.grid_rowconfigure(number, weight=1)
 main_menu.grid_columnconfigure(0, weight=1)
 
 # Title and description 
@@ -68,18 +74,110 @@ mm_view_btn.grid(row=5, column=0, sticky="NESW")
 mm_search_btn = tk.Button(main_menu, text="Search Address Book", font=("Arial", 12), bg="#D6E4E5", command=lambda:show_frame(search_contact))
 mm_search_btn.grid(row=6, column=0, sticky="NESW")
 
-mm_exit_btn = tk.Button(main_menu, text="Exit", font=("Arial", 12), bg="#D6E4E5", command=lambda:on_closing())
+mm_exit_btn = tk.Button(main_menu, text="Exit", font=("Arial", 12), bg="#D6E4E5", command=on_closing)
 mm_exit_btn.grid(row=7, column=0, sticky="NESW")
+
+
+
+# Add Contact (a in var stands for add contact frame)
+# Configure the number of rows and column in add contact frame
+for number in range(12):
+    add_contact.grid_rowconfigure(number, weight=1)
+
+for number in range(2):
+    add_contact.grid_columnconfigure(0, weight=1)
+
+# Title and description 
+a_title = tk.Label(add_contact, text="Add Contact", font=("Arial", 24), fg="white", bg="#497174")
+a_title.grid(row=0, column=0, columnspan=2, sticky="NESW")
+
+a_description = tk.Label(add_contact, text="Fill up the new contact's details.", font=("Arial", 18), bg="#EFF5F5")
+a_description.grid(row=1, column=0, columnspan=2, sticky="NESW")
+
+# Forms
+# Firstname
+a_firstname = tk.Label(add_contact, text="First Name", font=("Arial", 12), bg="#EFF5F5")
+a_firstname.grid(row=2, column=0, sticky="NESW", padx=30)
+
+a_firstname_input = tk.Entry(add_contact, font=("Arial", 12))
+a_firstname_input.grid(row=2, column=1, sticky="NESW", padx=30)
+
+#Last Name
+a_lastname = tk.Label(add_contact, text="Last Name", font=("Arial", 12), bg="#EFF5F5")
+a_lastname.grid(row=3, column=0, sticky="NESW")
+
+a_lastname_input = tk.Entry(add_contact, font=("Arial", 12))
+a_lastname_input.grid(row=3, column=1, sticky="NESW", padx=30)
+
+# Contact Number
+a_number = tk.Label(add_contact, text="Contact Number", font=("Arial", 12), bg="#EFF5F5")
+a_number.grid(row=4, column=0, sticky="NESW")
+
+a_number_input = tk.Entry(add_contact, font=("Arial", 12))
+a_number_input.grid(row=4, column=1, sticky="NESW", padx=30, pady=15)
+
+# Address
+a_address = tk.Label(add_contact, text="Address", font=("Arial", 16), bg="#EFF5F5")
+a_address.grid(row=5, column=0, sticky="NESW", ipadx=10)
+
+# House Number
+a_house_no = tk.Label(add_contact, text="House Number", font=("Arial", 12), bg="#EFF5F5")
+a_house_no.grid(row=6, column=0, sticky="NESW")
+
+a_house_no_input = tk.Entry(add_contact, font=("Arial", 12))
+a_house_no_input.grid(row=6, column=1, sticky="NESW", padx=30)
+
+# Street / Village
+a_street_village = tk.Label(add_contact, text="Street / Village", font=("Arial", 12), bg="#EFF5F5")
+a_street_village.grid(row=7, column=0, sticky="NESW")
+
+a_street_village_input = tk.Entry(add_contact, font=("Arial", 12))
+a_street_village_input.grid(row=7, column=1, sticky="NESW", padx=30)
+
+# City / Municipality
+a_city_municipality = tk.Label(add_contact, text="City / Municipality", font=("Arial", 12), bg="#EFF5F5")
+a_city_municipality.grid(row=8, column=0, sticky="NESW")
+
+a_city_municipality_input = tk.Entry(add_contact, font=("Arial", 12))
+a_city_municipality_input.grid(row=8, column=1, sticky="NESW", padx=30)
+
+# Province
+a_province = tk.Label(add_contact, text="Province", font=("Arial", 12), bg="#EFF5F5")
+a_province.grid(row=9, column=0, sticky="NESW")
+
+a_province_input = tk.Entry(add_contact, font=("Arial", 12))
+a_province_input.grid(row=9, column=1, sticky="NESW", padx=30)
+
+# Country
+a_country = tk.Label(add_contact, text="Country", font=("Arial", 12), bg="#EFF5F5")
+a_country.grid(row=10, column=0, sticky="NESW")
+
+a_country_input = tk.Entry(add_contact, font=("Arial", 12))
+a_country_input.grid(row=10, column=1, sticky="NESW", padx=30)
+
+# Back btn to main menu
+a_back_btn = tk.Button(add_contact, text="Back", font=("Arial", 12), bg="#EFF5F5", command=lambda:show_frame(main_menu))
+a_back_btn.grid(row=11, column=0, sticky="W", ipadx=10 ,padx=30)
+
+
+# Submit btn (change function)
+a_submit_btn = tk.Button(add_contact, text="Submit", font=("Arial", 12), bg="#EB6440", command=check_infos)
+a_submit_btn.grid(row=11, column=1, sticky="E", ipadx=10 ,padx=30)
+
+
+
+
+
+
+
+
+
 
 # Starting frame
 show_frame(main_menu)
-
-# Ask again if user really want to exit
-def on_closing():
-    if messagebox.askyesno(title="Exit?", message="Do you really want to close 'Address Book'?"):
-        root.destroy()
-
+# Reprompt when closing
 root.protocol("WM_DELETE_WINDOW", on_closing)
+
 root.mainloop()
 
 
