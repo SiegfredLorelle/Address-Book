@@ -18,13 +18,25 @@ from helpers import remove_unnecessary_space
 # Redirect to new frame
 def show_frame(frame):
     print(db)
-    # Do not redirect to edit contact frame if db is empty
-    if frame == edit_contact:
+    # Clear inputs when going back to main menu
+    if frame == main_menu:
+        inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
+        clear_inputs(inputs)
+
+    elif frame == edit_contact:
+        # Do not redirect to edit contact frame if db is empty
         if len(db) < 1:
             if messagebox.askyesno(title="Error", message="The Address Book is currently empty.\nWould you like to add a contact?"): 
                 return show_frame(add_contact)
-            else:
-                return
+            return
+
+        # Hide labels and inputs when no entry number entered
+        else:
+            widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_back_btn, e_submit_btn]
+            hide_widgets(widgets_to_hide)
+
+    
+        
     return frame.tkraise()
 
 # Check information about contact's details
@@ -109,8 +121,7 @@ def check_infos():
 
     # Clear inputs (aka entries)
     inputs = [a_firstname_input, a_lastname_input, a_number_input, a_house_no_input, a_street_village_input, a_city_municipality_input, a_province_input, a_country_input]
-    for input in inputs:
-        input.delete(0, tk.END)
+    clear_inputs(inputs)
 
     # Inform user via message box that it is successful and redirect to main menu if no more contacts to add
     if not messagebox.askyesno(title="Success!", message=f"Successfully added {details['first name']} {details['last name']}'s contact information!\n\nWould you like to add another contact?"):
@@ -120,8 +131,14 @@ def check_infos():
 
 
 def search_db_via_entry():
+    # Clear inputs
+    inputs = [e_firstname_input, e_lastname_input, e_address_input, e_number_input]
+    clear_inputs(inputs)
+
+    # Get entry number
     entry_number = e_entry_no_input.get()
 
+    # Ensure entry number is vaid
     for character in entry_number:
         if character not in digits:
             return messagebox.showerror(title="Error", message="Entry numbers can only be be 1-50 inclusive.") 
@@ -131,12 +148,37 @@ def search_db_via_entry():
 
     number_of_entries_in_db = len(db)
     if entry_number > number_of_entries_in_db:
-            return messagebox.showerror(title="Error", message=f"The Address Book only have {number_of_entries_in_db}") 
+            return messagebox.showerror(title="Error", message=f"The Address Book only contains {number_of_entries_in_db} entries.") 
 
-    print(number_of_entries_in_db)
-    print(entry_number)
+    # Open widgets and insert their values based on entry number
+    e_firstname.grid(row=5, column=0, sticky="NESW", padx=30)
+    e_firstname_input.insert(0, db[entry_number - 1].get("first name"))
+    e_firstname_input.grid(row=5, column=1, sticky="NESW", padx=30)
 
+    e_lastname.grid(row=6, column=0, sticky="NESW")
+    e_lastname_input.insert(0, db[entry_number - 1].get("last name"))
+    e_lastname_input.grid(row=6, column=1, sticky="NESW", padx=30)
+    
+    e_address.grid(row=7, column=0, sticky="NESW", padx=30)
+    e_address_input.insert(0, db[entry_number - 1].get("address"))
+    e_address_input.grid(row=7, column=1, sticky="NESW", padx=30)
 
+    e_number.grid(row=8, column=0, sticky="NESW")
+    e_number_input.insert(0, db[entry_number - 1].get("contact number"))
+    e_number_input.grid(row=8, column=1, sticky="NESW", padx=30, pady=15)
+
+    e_back_btn.grid(row=12, column=0, sticky="W", ipadx=10, padx=30, pady=15)
+    e_submit_btn.grid(row=12, column=1, sticky="E", ipadx=10, padx=30, pady=15)
+
+    return
+
+def hide_widgets(widgets):
+    for widget in widgets:
+        widget.grid_forget()
+
+def clear_inputs(inputs):
+    for input in inputs:
+        input.delete(0, tk.END)
 
 # Ask again if user really want to exit
 def on_closing():
@@ -166,6 +208,10 @@ for frame in [main_menu, add_contact, edit_contact, delete_contact, view_contact
 
 # Address Book db
 db = []
+
+# JUST FOR TESTING TO NO LONGER NEED TO ADD A CONTACT
+db.append({"first name": "Sieg", "last name": "Mina", "contact number": "0945160",
+                        "address": "Canada"})
 
 # Main Menu (mm in var stands for main menu)
 # Configure the number of rows and column main menu have
@@ -279,18 +325,16 @@ a_country_input.grid(row=10, column=1, sticky="NESW", padx=30)
 
 # Back btn to main menu
 a_back_btn = tk.Button(add_contact, text="Back", font=("Arial", 12), bg="#EFF5F5", command=lambda:show_frame(main_menu))
-a_back_btn.grid(row=11, column=0, sticky="W", ipadx=10 ,padx=30)
+a_back_btn.grid(row=11, column=0, sticky="W", ipadx=10, padx=30, pady=15)
 
 # Submit btn (change function)
 a_submit_btn = tk.Button(add_contact, text="Submit", font=("Arial", 12), bg="#EB6440", command=check_infos)
-a_submit_btn.grid(row=11, column=1, sticky="E", ipadx=10 ,padx=30)
-
-
+a_submit_btn.grid(row=11, column=1, sticky="E", ipadx=10, padx=30, pady=15)
 
 
 # Edit Contact (e in var stands for edit contact frame) 
 # Configure the number of rows and column in add contact frame
-for number in range(13):
+for number in range(12):
     edit_contact.grid_rowconfigure(number, weight=1)
 
 for number in range(2):
@@ -300,31 +344,63 @@ for number in range(2):
 e_title = tk.Label(edit_contact, text="Edit Contact", font=("Arial", 24), fg="white", bg="#497174")
 e_title.grid(row=0, column=0, columnspan=2, sticky="NESW")
 
-e_title = tk.Label(edit_contact, text="Enter entry number to search.", font=("Arial", 14), bg="#EFF5F5")
+e_title = tk.Label(edit_contact, text="Enter entry number to edit.", font=("Arial", 14), bg="#EFF5F5")
 e_title.grid(row=1, column=0, columnspan=2, sticky="NESW")
 
-e_entry_no_input = tk.Entry(edit_contact, text="First Name", font=("Arial", 12))
-e_entry_no_input.grid(row=2, column=0, sticky="E", padx=30)
+e_entry_no_input = tk.Entry(edit_contact, font=("Arial", 12))
+e_entry_no_input.grid(row=2, column=0, sticky="E", padx=30, pady=15)
 
-e_submit_btn = tk.Button(edit_contact, text="Submit", font=("Arial", 12), bg="#EB6440", command=search_db_via_entry)
-e_submit_btn.grid(row=2, column=1, sticky="W", ipadx=10)
+e_submit_btn = tk.Button(edit_contact, text="Search", font=("Arial", 12), bg="#EB6440", command=search_db_via_entry)
+e_submit_btn.grid(row=2, column=1, sticky="W", ipadx=10, pady=15)
 
-# # Forms
-# # Firstname
-# e_firstname = tk.Label(edit_contact, text="First Name", font=("Arial", 12), bg="#EFF5F5")
-# e_firstname.grid(row=3, column=0, sticky="NESW", padx=30)
+# Forms
+# Firstname
+e_firstname = tk.Label(edit_contact, text="First Name", font=("Arial", 12), bg="#EFF5F5")
+e_firstname.grid(row=5, column=0, sticky="NESW", padx=30)
+e_firstname.grid_forget()
 
-# e_firstname_input = tk.Entry(edit_contact, font=("Arial", 12))
-# e_firstname_input.grid(row=3, column=1, sticky="NESW", padx=30)
+e_firstname_input = tk.Entry(edit_contact, font=("Arial", 12))
+e_firstname_input.grid(row=5, column=1, sticky="NESW", padx=30)
+e_firstname_input.grid_forget()
 
-# #Last Name
-# a_lastname = tk.Label(edit_contact, text="Last Name", font=("Arial", 12), bg="#EFF5F5")
-# a_lastname.grid(row=4, column=0, sticky="NESW")
+#Last Name
+e_lastname = tk.Label(edit_contact, text="Last Name", font=("Arial", 12), bg="#EFF5F5")
+e_lastname.grid(row=6, column=0, sticky="NESW")
+e_lastname.grid_forget()
+
+e_lastname_input = tk.Entry(edit_contact, font=("Arial", 12))
+e_lastname_input.grid(row=6, column=1, sticky="NESW", padx=30)
+e_lastname_input.grid_forget()
+
+# Address
+e_address = tk.Label(edit_contact, text="Address", font=("Arial", 12), bg="#EFF5F5")
+e_address.grid(row=7, column=0, sticky="NESW", padx=30)
+e_address.grid_forget()
+
+e_address_input = tk.Entry(edit_contact, font=("Arial", 12))
+e_address_input.grid(row=7, column=1, sticky="NESW", padx=30)
+e_address_input.grid_forget()
 
 
+# Contact Number
+e_number = tk.Label(edit_contact, text="Contact Number", font=("Arial", 12), bg="#EFF5F5")
+e_number.grid(row=8, column=0, sticky="NESW")
+e_number.grid_forget()
+
+e_number_input = tk.Entry(edit_contact, font=("Arial", 12))
+e_number_input.grid(row=8, column=1, sticky="NESW", padx=30, pady=15)
+e_number_input.grid_forget()
 
 
+# Back btn to main menu
+e_back_btn = tk.Button(edit_contact, text="Back", font=("Arial", 12), bg="#EFF5F5", command=lambda:show_frame(main_menu))
+e_back_btn.grid(row=12, column=0, sticky="W", ipadx=10, padx=30, pady=15)
+e_back_btn.grid_forget()
 
+# Submit btn
+e_submit_btn = tk.Button(edit_contact, text="Edit", font=("Arial", 12), bg="#EB6440", command=check_infos)
+e_submit_btn.grid(row=12, column=1, sticky="E", ipadx=10, padx=30, pady=15)
+e_submit_btn.grid_forget()
 
 
 
@@ -338,232 +414,8 @@ root.mainloop()
 
 
 
+# USE FOR LOOPS FOR CONFIGURING TKINTER
 
+# CHANGE WIDTH OF ENTRY NUMBER INPUT IN EDIT
 
-
-# This will import all the widgets
-# and modules which are available in
-# tkinter and ttk module
-
- 
- 
-# class NewWindow(Toplevel):
-     
-#     def __init__(self, master = None):
-         
-#         super().__init__(master = master)
-#         self.title("New Window")
-#         self.geometry("200x200")
-#         label = Label(self, text ="This is a new Window")
-#         label.pack()
- 
- 
-# # creates a Tk() object
-# master = Tk()
- 
-# # sets the geometry of
-# # main root window
-# master.geometry("200x200")
- 
-# label = Label(master, text ="Main Menu")
-# label.pack(side = TOP, pady = 10)
- 
-# label = Label(master, text ="What would you like to do?", font='arial 10 bold').pack()
-
-# # a button widget which will
-# # open a new window on button click
-# btn = Button(master,
-#              text ="Click to open a new window")
- 
-# # Following line will bind click event
-# # On any click left / right button
-# # of mouse a new window will be opened
-# btn.bind("<Button>",
-#          lambda e: NewWindow(master))
- 
-# btn.pack(pady = 10)
- 
-# # mainloop, runs infinitely
-# mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ws = Tk()
-# ws.title('Python Guides')
-# ws.geometry('500x400')
-# ws.config(bg="#447c84")
-# ws.attributes('-fullscreen',True)
-
-# functions
-
-# from tkinter import ttk
-
-
-# class Window(tk.Toplevel):
-#     def __init__(self, parent):
-#         super().__init__(parent)
-#         self.geometry('300x100')
-#         self.title('Toplevel Window')
-
-#         ttk.Button(self,
-#                 text='Close',
-#                 command=self.destroy).pack(expand=True)
-
-
-# class App(tk.Tk):
-#     def __init__(self):
-#         super().__init__()
-
-#         self.geometry('720x576')
-#         self.title('Main Menu')
-
-#         tk.Label(self, text = 'Main Menu', font='arial 16 bold').pack()
-#         tk.Label(self, text = 'What would you like to do?', font='arial 12 bold').pack()
-#         # tk.Label(self, text = '1 - Add Contacts', font='arial 12 bold').pack()
-#         # tk.Label(self, text = 'What would you like to do?', font='arial 12 bold').pack()
-#         # tk.Label(self, text = 'What would you like to do?', font='arial 12 bold').pack()
-#         # tk.Label(self, text = 'What would you like to do?', font='arial 12 bold').pack()
-#         # tk.Label(self, text = 'What would you like to do?', font='arial 12 bold').pack()
-
-#         # place a button on the root window
-#         ttk.Button(self,
-#                 text = 'Add Contacts',
-#                 command=self.open_window("add")).pack()
-
-#         ttk.Button(self,
-#                 text = 'Go',
-#                 command=self.open_window).place(x="450", y="84")
-
-
-#     def open_window(self, todo):
-#         if todo == "add":
-#             window = Window(self)
-#             window.grab_set()
-#         else:
-#             pass
-
-
-
-
-# if __name__ == "__main__":
-#     app = App()
-#     app.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def main_menu():
-
-#     print("Main Menu\nWhat would you like  to do?")
-#     print("1 - Add Contact\n2 - Edit Contact\n3 - Delete Contact\n4 - View Contacts\n5 - Search Address Book\n6 - Exit\n")
-    
-#     # Keep prompting the user until a valid answer is given
-#     # (add counter for when user exceed 5 reask the question and give sggestions)
-#     # accept string inputs like add contact or edit contact
-#     options = [str(number) for number in range(1,7)]
-#     while True:
-#         option = input("Choose an option:  ").lstrip("0")
-#         if option in options:
-#             break
-
-#     # Prompt again depending on what the user want to do
-#     if option == options[0]:
-#         add_contact()
-    
-#     elif option == options[1]:
-#         edit_contact()
-    
-#     elif option == options[2]:
-#         delete_contact()
-    
-#     elif option == options[3]:
-#         view_contact()
-    
-#     elif option == options[4]:
-#         search_address_book()
-    
-#     else:
-#         sys.exit("The program is closing. Thank you!")
-
-    
-    
-# def add_contact():
-#     # Prompt for first name, last name, address, and contact number
-#     print("\nFill up the details for the new contact")
-    
-#     # Get the names 
-#     first_name = get_name("first_name")
-#     last_name = get_name("last_name")
-
-#     print(first_name, last_name)
-#     print("successfully got the name")
-
-#     # Get the full address
-
-    
-#     print("\nFill up the contact's full address (NA if not sure)")
-
-
-
-#     # main_menu()
-
-
-
-
-
-
-        
-    
-
-            
-# def edit_contact():
-#     pass
-
-# def delete_contact():
-#     pass
-
-# def view_contact():
-#     pass
-
-# def search_address_book():
-#     pass
-
-
-
-
-
-
-
-
-
-
-# if __name__ == "__main__":
-# 	main_menu()
+# ACTUALLY EDIT THE PAGE
