@@ -1,6 +1,24 @@
 from string import digits, punctuation
 from re import sub
 
+
+
+def remove_unnecessary_space(name):
+     return sub(' +', ' ',name.strip())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def get_name(name):
     if name == "first_name":
         input_name = input("First name:  ")

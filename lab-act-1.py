@@ -4,20 +4,106 @@
 
 import cs50
 import sys
+from string import digits, punctuation
 import tkinter as tk
 from tkinter import messagebox  
+import re
+import webbrowser
 
-from helpers import get_name, get_house_number, get_street_vilage, get_city_municipality, get_province, get_country
+
+from helpers import remove_unnecessary_space
+# from helpers import get_name, get_house_number, get_street_vilage, get_city_municipality, get_province, get_country
 
 
 # Redirect to new frame
 def show_frame(frame):
+    print(db)
     frame.tkraise()
 
 # Check information about contact's details
 def check_infos():
-    print(a_country_input.get())
-    pass
+    # Get all information about the contact's and put in a dictionary
+    details = {"first name": a_firstname_input.get(), "last name": a_lastname_input.get(), "contact number": a_number_input.get(),
+                            "house number": a_house_no_input.get(), "street/village": a_street_village_input.get(), 
+                            "city/municipality": a_city_municipality_input.get(), "province": a_province_input.get(), 
+                            "country": a_country_input.get()
+    }
+
+    # Ensure inputs are valid
+    # Ensure all details are filled up and not only filled with whitespace
+    for detail in details:
+        if not details.get(detail) or details.get(detail).isspace():
+            return messagebox.showerror(title="Error", message="Values are incomplete. Please fill up all the details.") 
+
+    # Remove unnecessary spaces in all values (starting, ending, and trailing)
+    for detail in details:
+        details[detail] = re.sub(' +', ' ',details.get(detail).strip())
+    
+    # Check individual details for its validity
+    for detail in details:
+        # Check if country is valid
+        if detail == "country":
+            # https://pytutorial.com/python-country-list
+            countries = ['Afghanistan', 'Aland Islands', 'Albania', 'Algeria', 'American Samoa', 'Andorra', 'Angola', 'Anguilla', 'Antarctica', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bermuda', 'Bhutan', 'Bolivia, Plurinational State of', 'Bonaire, Sint Eustatius and Saba', 'Bosnia and Herzegovina', 'Botswana', 'Bouvet Island', 'Brazil', 'British Indian Ocean Territory', 'Brunei Darussalam', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Cayman Islands', 'Central African Republic', 'Chad', 'Chile', 'China', 'Christmas Island', 'Cocos (Keeling) Islands', 'Colombia', 'Comoros', 'Congo', 'Congo, The Democratic Republic of the', 'Cook Islands', 'Costa Rica', "Côte d'Ivoire", 'Croatia', 'Cuba', 'Curaçao', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Falkland Islands (Malvinas)', 'Faroe Islands', 'Fiji', 'Finland', 'France', 'French Guiana', 'French Polynesia', 'French Southern Territories', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Gibraltar', 'Greece', 'Greenland', 'Grenada', 'Guadeloupe', 'Guam', 'Guatemala', 'Guernsey', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Heard Island and McDonald Islands', 'Holy See (Vatican City State)', 'Honduras', 'Hong Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran, Islamic Republic of', 'Iraq', 'Ireland', 'Isle of Man', 'Israel', 'Italy', 'Jamaica', 'Japan', 'Jersey', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', "Korea, Democratic People's Republic of", 'Korea, Republic of', 'Kuwait', 'Kyrgyzstan', "Lao People's Democratic Republic", 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macao', 'Macedonia, Republic of', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Martinique', 'Mauritania', 'Mauritius', 'Mayotte', 'Mexico', 'Micronesia, Federated States of', 'Moldova, Republic of', 'Monaco', 'Mongolia', 'Montenegro', 'Montserrat', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Caledonia', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Niue', 'Norfolk Island', 'Northern Mariana Islands', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestinian Territory, Occupied', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Pitcairn', 'Poland', 'Portugal', 'Puerto Rico', 'Qatar', 'Réunion', 'Romania', 'Russian Federation', 'Rwanda', 'Saint Barthélemy', 'Saint Helena, Ascension and Tristan da Cunha', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Martin (French part)', 'Saint Pierre and Miquelon', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Sint Maarten (Dutch part)', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Georgia and the South Sandwich Islands', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'South Sudan', 'Svalbard and Jan Mayen', 'Swaziland', 'Sweden', 'Switzerland', 'Syrian Arab Republic', 'Taiwan, Province of China', 'Tajikistan', 'Tanzania, United Republic of', 'Thailand', 'Timor-Leste', 'Togo', 'Tokelau', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Turks and Caicos Islands', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'United States Minor Outlying Islands', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Venezuela, Bolivarian Republic of', 'Viet Nam', 'Virgin Islands, British', 'Virgin Islands, U.S.', 'Wallis and Futuna', 'Yemen', 'Zambia', 'Zimbabwe']
+            countries = [country.upper() for country in countries]
+
+            if details.get(detail).upper() not in countries:
+                if messagebox.askyesno(title="Error", message=f"{details.get(detail).upper()} is NOT a valid country.\n\nGo to python-country-list to see the all countries.\nWould you like to go?"): 
+                    return webbrowser.open_new_tab("https://pytutorial.com/python-country-list")
+                else:
+                    return
+
+        # Ensure names, municipality, and province do not have digits and punctuations
+        elif detail in ["first name", "last name", "city/municipality", "province"]:
+            for character in details.get(detail):
+                if character in digits or character in punctuation:
+                    return messagebox.showerror(title="Error", message=f"{detail.upper()} must NOT contain numbers or punctuations.") 
+
+        # Ensure house number only contains number
+        elif detail == "house number":
+            for character in details.get(detail):
+                if character not in digits:
+                    return messagebox.showerror(title="Error", message=f"{detail.upper()} must only contain digits.")      
+
+        # Ensure contact number has only number and some special charachters
+        elif detail == "contact number":
+            for character in details.get(detail):
+                if character not in digits and character not in "()-/+":
+                    return messagebox.showerror(title="Error", message=f"{detail.upper()} must only contain digits.") 
+
+    # Compress the address into a single element
+    address = ""
+    for detail in ["house number", "street/village", "city/municipality", "province", "country"]:
+        if detail == "house number":
+            address += f"{details.get(detail)} "
+        elif detail == "country":
+            address += details.get(detail)
+        else:
+            address += f"{details.get(detail)}, "
+
+        # Delete the address' previous elements
+        details.pop(detail)
+
+    details["address"] = address
+    
+    # Capitalize all details for uniformity
+    for detail in details:
+        details[detail] = details.get(detail).upper()
+    
+    # Add contact into db
+    db.append(details)
+    if messagebox.askyesno(title="Success!", message="Successfully added contact!\nWould you like to add another contact?"):
+        # CLEAR ENTRIES (TODO)
+        pass
+
+    else:
+        return show_frame(main_menu)
+
+    # Redirect to main menu
+
+
+
+
 
 # Ask again if user really want to exit
 def on_closing():
@@ -44,6 +130,9 @@ search_contact = tk.Frame(root, bg="#EFF5F5")
 # Create grid for every page frame
 for frame in [main_menu, add_contact, edit_contact, delete_contact, view_contact, search_contact]:
         frame.grid(row=0, column=0, sticky="nsew")
+
+# Address Book db
+db = []
 
 # Main Menu (mm in var stands for main menu)
 # Configure the number of rows and column main menu have
@@ -158,7 +247,6 @@ a_country_input.grid(row=10, column=1, sticky="NESW", padx=30)
 # Back btn to main menu
 a_back_btn = tk.Button(add_contact, text="Back", font=("Arial", 12), bg="#EFF5F5", command=lambda:show_frame(main_menu))
 a_back_btn.grid(row=11, column=0, sticky="W", ipadx=10 ,padx=30)
-
 
 # Submit btn (change function)
 a_submit_btn = tk.Button(add_contact, text="Submit", font=("Arial", 12), bg="#EB6440", command=check_infos)
