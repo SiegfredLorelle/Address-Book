@@ -18,7 +18,14 @@ from helpers import remove_unnecessary_space
 # Redirect to new frame
 def show_frame(frame):
     print(db)
-    frame.tkraise()
+    # Do not redirect to edit contact frame if db is empty
+    if frame == edit_contact:
+        if len(db) < 1:
+            if messagebox.askyesno(title="Error", message="The Address Book is currently empty.\nWould you like to add a contact?"): 
+                return show_frame(add_contact)
+            else:
+                return
+    return frame.tkraise()
 
 # Check information about contact's details
 def check_infos():
@@ -33,7 +40,7 @@ def check_infos():
     # Ensure all details are filled up and not only filled with whitespace
     for detail in details:
         if not details.get(detail) or details.get(detail).isspace():
-            return messagebox.showerror(title="Error", message="Values are incomplete. Please fill up all the details.") 
+            return messagebox.showerror(title="Error", message="Details are incomplete. Please fill up all the details.") 
 
     # Remove unnecessary spaces in all values (starting, ending, and trailing)
     for detail in details:
@@ -44,6 +51,7 @@ def check_infos():
         # Check if country is valid
         if detail == "country":
             # https://pytutorial.com/python-country-list
+            # TODO FIX THE NAMES OF SOME COUNTRIES
             countries = ['Afghanistan', 'Aland Islands', 'Albania', 'Algeria', 'American Samoa', 'Andorra', 'Angola', 'Anguilla', 'Antarctica', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bermuda', 'Bhutan', 'Bolivia, Plurinational State of', 'Bonaire, Sint Eustatius and Saba', 'Bosnia and Herzegovina', 'Botswana', 'Bouvet Island', 'Brazil', 'British Indian Ocean Territory', 'Brunei Darussalam', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Cayman Islands', 'Central African Republic', 'Chad', 'Chile', 'China', 'Christmas Island', 'Cocos (Keeling) Islands', 'Colombia', 'Comoros', 'Congo', 'Congo, The Democratic Republic of the', 'Cook Islands', 'Costa Rica', "Côte d'Ivoire", 'Croatia', 'Cuba', 'Curaçao', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Falkland Islands (Malvinas)', 'Faroe Islands', 'Fiji', 'Finland', 'France', 'French Guiana', 'French Polynesia', 'French Southern Territories', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Gibraltar', 'Greece', 'Greenland', 'Grenada', 'Guadeloupe', 'Guam', 'Guatemala', 'Guernsey', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Heard Island and McDonald Islands', 'Holy See (Vatican City State)', 'Honduras', 'Hong Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran, Islamic Republic of', 'Iraq', 'Ireland', 'Isle of Man', 'Israel', 'Italy', 'Jamaica', 'Japan', 'Jersey', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', "Korea, Democratic People's Republic of", 'Korea, Republic of', 'Kuwait', 'Kyrgyzstan', "Lao People's Democratic Republic", 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macao', 'Macedonia, Republic of', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Martinique', 'Mauritania', 'Mauritius', 'Mayotte', 'Mexico', 'Micronesia, Federated States of', 'Moldova, Republic of', 'Monaco', 'Mongolia', 'Montenegro', 'Montserrat', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Caledonia', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Niue', 'Norfolk Island', 'Northern Mariana Islands', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestinian Territory, Occupied', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Pitcairn', 'Poland', 'Portugal', 'Puerto Rico', 'Qatar', 'Réunion', 'Romania', 'Russian Federation', 'Rwanda', 'Saint Barthélemy', 'Saint Helena, Ascension and Tristan da Cunha', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Martin (French part)', 'Saint Pierre and Miquelon', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Sint Maarten (Dutch part)', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Georgia and the South Sandwich Islands', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'South Sudan', 'Svalbard and Jan Mayen', 'Swaziland', 'Sweden', 'Switzerland', 'Syrian Arab Republic', 'Taiwan, Province of China', 'Tajikistan', 'Tanzania, United Republic of', 'Thailand', 'Timor-Leste', 'Togo', 'Tokelau', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Turks and Caicos Islands', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'United States Minor Outlying Islands', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Venezuela, Bolivarian Republic of', 'Viet Nam', 'Virgin Islands, British', 'Virgin Islands, U.S.', 'Wallis and Futuna', 'Yemen', 'Zambia', 'Zimbabwe']
             countries = [country.upper() for country in countries]
 
@@ -108,6 +116,26 @@ def check_infos():
     if not messagebox.askyesno(title="Success!", message=f"Successfully added {details['first name']} {details['last name']}'s contact information!\n\nWould you like to add another contact?"):
         show_frame(main_menu)    
     return
+
+
+
+def search_db_via_entry():
+    entry_number = e_entry_no_input.get()
+
+    for character in entry_number:
+        if character not in digits:
+            return messagebox.showerror(title="Error", message="Entry numbers can only be be 1-50 inclusive.") 
+        entry_number = int(entry_number)
+        if entry_number < 1 or entry_number > 50:
+            return messagebox.showerror(title="Error", message="Entry numbers can only be be 1-50 inclusive.") 
+
+    number_of_entries_in_db = len(db)
+    if entry_number > number_of_entries_in_db:
+            return messagebox.showerror(title="Error", message=f"The Address Book only have {number_of_entries_in_db}") 
+
+    print(number_of_entries_in_db)
+    print(entry_number)
+
 
 
 # Ask again if user really want to exit
@@ -179,7 +207,7 @@ for number in range(12):
     add_contact.grid_rowconfigure(number, weight=1)
 
 for number in range(2):
-    add_contact.grid_columnconfigure(0, weight=1)
+    add_contact.grid_columnconfigure(number, weight=1)
 
 # Title and description 
 a_title = tk.Label(add_contact, text="Add Contact", font=("Arial", 24), fg="white", bg="#497174")
@@ -256,6 +284,45 @@ a_back_btn.grid(row=11, column=0, sticky="W", ipadx=10 ,padx=30)
 # Submit btn (change function)
 a_submit_btn = tk.Button(add_contact, text="Submit", font=("Arial", 12), bg="#EB6440", command=check_infos)
 a_submit_btn.grid(row=11, column=1, sticky="E", ipadx=10 ,padx=30)
+
+
+
+
+# Edit Contact (e in var stands for edit contact frame) 
+# Configure the number of rows and column in add contact frame
+for number in range(13):
+    edit_contact.grid_rowconfigure(number, weight=1)
+
+for number in range(2):
+    edit_contact.grid_columnconfigure(number, weight=1)
+
+# Title and description
+e_title = tk.Label(edit_contact, text="Edit Contact", font=("Arial", 24), fg="white", bg="#497174")
+e_title.grid(row=0, column=0, columnspan=2, sticky="NESW")
+
+e_title = tk.Label(edit_contact, text="Enter entry number to search.", font=("Arial", 14), bg="#EFF5F5")
+e_title.grid(row=1, column=0, columnspan=2, sticky="NESW")
+
+e_entry_no_input = tk.Entry(edit_contact, text="First Name", font=("Arial", 12))
+e_entry_no_input.grid(row=2, column=0, sticky="E", padx=30)
+
+e_submit_btn = tk.Button(edit_contact, text="Submit", font=("Arial", 12), bg="#EB6440", command=search_db_via_entry)
+e_submit_btn.grid(row=2, column=1, sticky="W", ipadx=10)
+
+# # Forms
+# # Firstname
+# e_firstname = tk.Label(edit_contact, text="First Name", font=("Arial", 12), bg="#EFF5F5")
+# e_firstname.grid(row=3, column=0, sticky="NESW", padx=30)
+
+# e_firstname_input = tk.Entry(edit_contact, font=("Arial", 12))
+# e_firstname_input.grid(row=3, column=1, sticky="NESW", padx=30)
+
+# #Last Name
+# a_lastname = tk.Label(edit_contact, text="Last Name", font=("Arial", 12), bg="#EFF5F5")
+# a_lastname.grid(row=4, column=0, sticky="NESW")
+
+
+
 
 
 
