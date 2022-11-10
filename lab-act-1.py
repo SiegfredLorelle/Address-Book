@@ -90,19 +90,24 @@ def check_infos():
     for detail in details:
         details[detail] = details.get(detail).upper()
     
+    # Ensure person is not already in db
+    for entry in db:
+        if entry["first name"] == details["first name"] and entry["last name"] == details["last name"] and entry["contact number"] == details["contact number"]:
+            return messagebox.showerror(title="Error", message=f"{details['first name'].upper()} {details['last name'].upper()}'s contact information is already saved.") 
+
+
     # Add contact into db
     db.append(details)
-    if messagebox.askyesno(title="Success!", message="Successfully added contact!\nWould you like to add another contact?"):
-        # CLEAR ENTRIES (TODO)
-        pass
 
-    else:
-        return show_frame(main_menu)
+    # Clear inputs (aka entries)
+    inputs = [a_firstname_input, a_lastname_input, a_number_input, a_house_no_input, a_street_village_input, a_city_municipality_input, a_province_input, a_country_input]
+    for input in inputs:
+        input.delete(0, tk.END)
 
-    # Redirect to main menu
-
-
-
+    # Inform user via message box that it is successful and redirect to main menu if no more contacts to add
+    if not messagebox.askyesno(title="Success!", message=f"Successfully added {details['first name']} {details['last name']}'s contact information!\n\nWould you like to add another contact?"):
+        show_frame(main_menu)    
+    return
 
 
 # Ask again if user really want to exit
@@ -251,10 +256,6 @@ a_back_btn.grid(row=11, column=0, sticky="W", ipadx=10 ,padx=30)
 # Submit btn (change function)
 a_submit_btn = tk.Button(add_contact, text="Submit", font=("Arial", 12), bg="#EB6440", command=check_infos)
 a_submit_btn.grid(row=11, column=1, sticky="E", ipadx=10 ,padx=30)
-
-
-
-
 
 
 
