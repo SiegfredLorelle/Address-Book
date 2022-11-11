@@ -40,6 +40,9 @@ def show_frame(frame):
 
     if frame == view_contact:
         view_all()
+        
+    if frame == search_contact:
+        search()
 
     return frame.tkraise()
 
@@ -47,9 +50,9 @@ def show_frame(frame):
 def save_contact():
     # Get all information about the contact's and put in a dictionary
     details = {"first name": a_firstname_input.get(), "last name": a_lastname_input.get(), "contact number": a_number_input.get(),
-                            "house number": a_house_no_input.get(), "street/village": a_street_village_input.get(), 
-                            "city/municipality": a_city_municipality_input.get(), "province": a_province_input.get(), 
-                            "country": a_country_input.get()
+                "house number": a_house_no_input.get(), "street/village": a_street_village_input.get(), 
+                "city/municipality": a_city_municipality_input.get(), "province": a_province_input.get(), 
+                "country": a_country_input.get()
     }
 
     # Ensure inputs are valid
@@ -126,57 +129,6 @@ def save_contact():
     inputs = [a_firstname_input, a_lastname_input, a_number_input, a_house_no_input, a_street_village_input, a_city_municipality_input, a_province_input, a_country_input]
     return clear_inputs(inputs)
 
-
-
-def view_all():
-    # Clear the view contact widget    
-    for widget in view_contact.winfo_children():
-        widget.destroy()
-
-    # Configure the number of rows and columns for view contact frame (based on number of entries in db)
-    no_rows = len(db) + 20
-    for number in range(no_rows):
-        view_contact.grid_rowconfigure(number, weight=1)
-
-    for number in range(5):
-        view_contact.grid_columnconfigure(number, weight=1)
-
-    # Show all contacts' information
-    for count, contact in enumerate(db, 1):
-        tk.Label(view_contact, text=count, font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=0, sticky="NESW")
-        tk.Label(view_contact, text=contact.get("first name"), font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=1, sticky="NESW")
-        tk.Label(view_contact, text=contact.get("last name"), font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=2, sticky="NESW")
-        tk.Label(view_contact, text=contact.get("contact number"), font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=3, sticky="NESW")
-        tk.Label(view_contact, text=contact.get("address"), font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=4, sticky="NESW")
-
-    # View Contact (v in var stands for view contact frame) 
-    # Title and description
-    v_title = tk.Label(view_contact, text="View Contacts", font=("Arial", 24), fg="white", bg="#497174")
-    v_title.grid(row=0, column=0, columnspan=5, sticky="NESW")
-
-    v_description = tk.Label(view_contact, text="All contacts in Address Book.", font=("Arial", 14), bg="#EFF5F5")
-    v_description.grid(row=1, column=0, columnspan=5, sticky="NESW")
-
-    v_entry_number = tk.Label(view_contact, text="Entry No.", font=("Arial", 14), bg="#EFF5F5")
-    v_entry_number.grid(row=2, column=0, sticky="NESW")
-
-    v_firstname = tk.Label(view_contact, text="First Name", font=("Arial", 14), bg="#EFF5F5")
-    v_firstname.grid(row=2, column=1, sticky="NESW")
-
-    v_lastname = tk.Label(view_contact, text="Last Name", font=("Arial", 14), bg="#EFF5F5")
-    v_lastname.grid(row=2, column=2, sticky="NESW")
-
-    v_number = tk.Label(view_contact, text="Number", font=("Arial", 14), bg="#EFF5F5")
-    v_number.grid(row=2, column=3, sticky="NESW")
-
-    v_address = tk.Label(view_contact, text="Address", font=("Arial", 14), bg="#EFF5F5")
-    v_address.grid(row=2, column=4, sticky="NESW")
-
-    v_back_btn = tk.Button(view_contact, text="Back",bg="#EB6440" ,command=lambda:show_frame(main_menu))
-    v_back_btn.grid(row=no_rows, column=0, sticky="W",ipadx=10, padx=30, pady=15)
-
-    # Full screen to better view the contacts since some informations can be lengthy
-    return root.state("zoomed") 
 
 
 def search_db_via_entry(current_frame):
@@ -334,6 +286,182 @@ def delete():
         db.pop(entry_number - 1)
         show_frame(main_menu)
     return
+
+
+
+def view_all():
+    # Clear the view contact widget    
+    for widget in view_contact.winfo_children():
+        widget.destroy()
+
+    # Configure the number of rows and columns for view contact frame (based on number of entries in db)
+    no_rows = len(db) + 20
+    for number in range(no_rows):
+        view_contact.grid_rowconfigure(number, weight=1)
+
+    for number in range(5):
+        view_contact.grid_columnconfigure(number, weight=1)
+
+    # Show all contacts' information
+    for count, contact in enumerate(db, 1):
+        tk.Label(view_contact, text=count, font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=0, sticky="NESW")
+        tk.Label(view_contact, text=contact.get("first name"), font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=1, sticky="NESW")
+        tk.Label(view_contact, text=contact.get("last name"), font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=2, sticky="NESW")
+        tk.Label(view_contact, text=contact.get("contact number"), font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=3, sticky="NESW")
+        tk.Label(view_contact, text=contact.get("address"), font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=4, sticky="NESW")
+
+    # View Contact (v in var stands for view contact frame) 
+    # Title and description
+    v_title = tk.Label(view_contact, text="View Contacts", font=("Arial", 24), fg="white", bg="#497174")
+    v_title.grid(row=0, column=0, columnspan=5, sticky="NESW")
+
+    v_description = tk.Label(view_contact, text="All contacts in Address Book.", font=("Arial", 14), bg="#EFF5F5")
+    v_description.grid(row=1, column=0, columnspan=5, sticky="NESW")
+
+    v_entry_number = tk.Label(view_contact, text="Entry No.", font=("Arial", 14), bg="#EFF5F5")
+    v_entry_number.grid(row=2, column=0, sticky="NESW")
+
+    v_firstname = tk.Label(view_contact, text="First Name", font=("Arial", 14), bg="#EFF5F5")
+    v_firstname.grid(row=2, column=1, sticky="NESW")
+
+    v_lastname = tk.Label(view_contact, text="Last Name", font=("Arial", 14), bg="#EFF5F5")
+    v_lastname.grid(row=2, column=2, sticky="NESW")
+
+    v_number = tk.Label(view_contact, text="Number", font=("Arial", 14), bg="#EFF5F5")
+    v_number.grid(row=2, column=3, sticky="NESW")
+
+    v_address = tk.Label(view_contact, text="Address", font=("Arial", 14), bg="#EFF5F5")
+    v_address.grid(row=2, column=4, sticky="NESW")
+
+    v_back_btn = tk.Button(view_contact, text="Back",bg="#EB6440" ,command=lambda:show_frame(main_menu))
+    v_back_btn.grid(row=no_rows, column=0, sticky="W",ipadx=10, padx=30, pady=15)
+
+    # Full screen to better view the contacts since some informations can be lengthy
+    return root.state("zoomed") 
+
+
+
+def search():
+    # Clear the search contact widget    
+    for widget in search_contact.winfo_children():
+        widget.destroy()
+
+    # Search Contact (s in var stands for search contact frame) 
+    # Configure the number of rows and columns initially for search contact frame
+    for number in range(20):
+        search_contact.grid_rowconfigure(number, weight=1)
+
+    for number in range(5):
+        search_contact.grid_columnconfigure(number, weight=1)
+
+    # Title and description
+    s_title = tk.Label(search_contact, text="Search Contact", font=("Arial", 24), fg="white", bg="#497174")
+    s_title.grid(row=0, column=0, columnspan=5, sticky="NESW")
+
+    s_description = tk.Label(search_contact, text="Search by any of the following.\n(leave blank to ignore)", font=("Arial", 14), bg="#EFF5F5")
+    s_description.grid(row=1, column=0, columnspan=5, sticky="NESW")
+
+    s_entry_no = tk.Label(search_contact, text="Entry No.", font=("Arial", 14), bg="#EFF5F5")
+    s_entry_no.grid(row=2, column=0, sticky="NESW")
+
+    s_firstname = tk.Label(search_contact, text="First Name", font=("Arial", 14), bg="#EFF5F5")
+    s_firstname.grid(row=2, column=1, sticky="NESW")
+
+    s_lastname = tk.Label(search_contact, text="Last Name", font=("Arial", 14), bg="#EFF5F5")
+    s_lastname.grid(row=2, column=2, sticky="NESW")
+
+    s_number = tk.Label(search_contact, text="Number", font=("Arial", 14), bg="#EFF5F5")
+    s_number.grid(row=2, column=3, sticky="NESW")
+
+    s_address = tk.Label(search_contact, text="Address", font=("Arial", 14), bg="#EFF5F5")
+    s_address.grid(row=2, column=4, sticky="NESW")
+
+    s_entry_no_input = tk.Entry(search_contact, font=("Arial", 12))
+    s_entry_no_input.grid(row=3, column=0, sticky="NESW", padx=30, pady=15)
+
+    s_firstname_input = tk.Entry(search_contact, font=("Arial", 12))
+    s_firstname_input.grid(row=3, column=1, sticky="NESW", padx=30, pady=15)
+
+    s_lastname_input = tk.Entry(search_contact, font=("Arial", 12))
+    s_lastname_input.grid(row=3, column=2, sticky="NESW", padx=30, pady=15)
+
+    s_number_input = tk.Entry(search_contact, font=("Arial", 12))
+    s_number_input.grid(row=3, column=3, sticky="NESW", padx=30, pady=15)
+
+    s_address_input = tk.Entry(search_contact, font=("Arial", 12))
+    s_address_input.grid(row=3, column=4, sticky="NESW", padx=30, pady=15)
+    
+    s_search_btn = tk.Button(search_contact, text="Search", font=("Arial", 12), bg="#EB6440" ,command=lambda:search_match(s_entry_no_input.get(), s_firstname_input.get(), s_lastname_input.get(), s_number_input.get(), s_address_input.get()))
+    s_search_btn.grid(row=4, column=2, sticky="NESW", ipadx=10, padx=30, pady=15)  
+
+    # Full screen to better view the contacts since some informations can be lengthy
+    return root.state("zoomed") 
+
+
+
+def search_match(entry_no, firstname, lastname, number, address):
+    details = [entry_no, firstname, lastname, number, address]
+    matches = []
+    print(details)
+    
+    # Ensure an information is entered
+    if entry_no.isspace() or firstname.isspace() or lastname.isspace() or number.isspace() or address.isspace():
+        return messagebox.showerror(title="Error", message="Enter information to search.") 
+    if not entry_no and not firstname and not lastname and not number and not address:
+        return messagebox.showerror(title="Error", message="Enter detail(s) to search.") 
+
+    # Check if details are correct
+    for detail in details:
+        if detail == entry_no:
+            if entry_no:
+                for character in entry_no:
+                    if character.isspace():
+                        return messagebox.showerror(title="Error", message="Avoid using whitespaces in ENTRY NO.") 
+
+                    if character not in digits:
+                        return messagebox.showerror(title="Error", message="Entry numbers can only be be 1-50 inclusive.") 
+        
+                # Change entry number from string to int
+                entry_no = int(entry_no)
+
+                if entry_no < 1 or entry_no > 50:
+                    return messagebox.showerror(title="Error", message="Entry numbers can only be be 1-50 inclusive.") 
+                
+                number_of_entries_in_db = len(db)
+                if entry_no > number_of_entries_in_db:
+                        return messagebox.showerror(title="Error", message="No matches.\n(entry no. doesn't exist)") 
+
+                print(db[entry_no - 1])
+                matches.append(db[entry_no - 1])
+        
+        if detail == firstname:
+            if firstname:
+                firstname = re.sub(' +', ' ',firstname.strip()).upper()
+
+                # Check if first name is valid
+                for character in firstname:
+                    if character in digits or character in punctuation:
+                        return messagebox.showerror(title="Error", message=f"FIRST NAME must NOT contain numbers or punctuations.") 
+
+                for contact in db:
+                    print(contact.get("first name"), firstname)
+                    if firstname == contact.get("first name"):
+                        matches.append(contact)   
+                if len(matches) == 0:
+                    return messagebox.showerror(title="Error", message=f"No matches.\n(No contact has a first name of '{firstname}'.)") 
+
+
+        # CHECK ERROR AND FIND SAME VALUE FOR LAST NAME AND ADDRESS
+
+        # IF MATCHES NOT EMPTY SHOW MATCHING 
+
+
+
+
+
+
+
+
 
 
 
