@@ -20,21 +20,26 @@ def show_frame(frame):
     if frame == main_menu:
         inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
         clear_inputs(inputs)
+            
 
-    elif frame in [edit_contact, delete_contact]:
+    elif frame in [edit_contact, delete_contact, view_contact, search_contact]:
         # Do not redirect to edit contact frame if db is empty
         if len(db) < 1:
-            if messagebox.askyesno(title="Error", message="The Address Book is currently empty.\nWould you like to add a contact?"): 
+            if messagebox.askyesno(title="Error", message="The Address Book is currently empty.\n\nWould you like to add a contact?"): 
                 return show_frame(add_contact)
             return
 
-        # Hide labels and inputs when no entry number entered
+        # Hide labels and inputs when going to edit and delete if no entry number entered
         else:
             if frame == edit_contact: 
                 widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_submit_btn]
             elif frame == delete_contact:
                         widgets_to_hide = [d_firstname, d_firstname_input, d_lastname, d_lastname_input, d_address ,d_address_input, d_number, d_number_input, d_submit_btn]
-            hide_widgets(widgets_to_hide)
+            if frame in [edit_contact, delete_contact]:
+                hide_widgets(widgets_to_hide)
+
+    if frame == view_contact:
+        view_all()
 
     return frame.tkraise()
 
@@ -121,6 +126,57 @@ def save_contact():
     inputs = [a_firstname_input, a_lastname_input, a_number_input, a_house_no_input, a_street_village_input, a_city_municipality_input, a_province_input, a_country_input]
     return clear_inputs(inputs)
 
+
+
+def view_all():
+    # Clear the view contact widget    
+    for widget in view_contact.winfo_children():
+        widget.destroy()
+
+    # Configure the number of rows and columns for view contact frame (based on number of entries in db)
+    no_rows = len(db) + 20
+    for number in range(no_rows):
+        view_contact.grid_rowconfigure(number, weight=1)
+
+    for number in range(5):
+        view_contact.grid_columnconfigure(number, weight=1)
+
+    # Show all contacts' information
+    for count, contact in enumerate(db, 1):
+        tk.Label(view_contact, text=count, font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=0, sticky="NESW")
+        tk.Label(view_contact, text=contact.get("first name"), font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=1, sticky="NESW")
+        tk.Label(view_contact, text=contact.get("last name"), font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=2, sticky="NESW")
+        tk.Label(view_contact, text=contact.get("contact number"), font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=3, sticky="NESW")
+        tk.Label(view_contact, text=contact.get("address"), font=("Arial", 12), bg="#EFF5F5").grid(row=count + 3, column=4, sticky="NESW")
+
+    # View Contact (v in var stands for view contact frame) 
+    # Title and description
+    v_title = tk.Label(view_contact, text="View Contacts", font=("Arial", 24), fg="white", bg="#497174")
+    v_title.grid(row=0, column=0, columnspan=5, sticky="NESW")
+
+    v_description = tk.Label(view_contact, text="All contacts in Address Book.", font=("Arial", 14), bg="#EFF5F5")
+    v_description.grid(row=1, column=0, columnspan=5, sticky="NESW")
+
+    v_entry_number = tk.Label(view_contact, text="Entry No.", font=("Arial", 14), bg="#EFF5F5")
+    v_entry_number.grid(row=2, column=0, sticky="NESW")
+
+    v_firstname = tk.Label(view_contact, text="First Name", font=("Arial", 14), bg="#EFF5F5")
+    v_firstname.grid(row=2, column=1, sticky="NESW")
+
+    v_lastname = tk.Label(view_contact, text="Last Name", font=("Arial", 14), bg="#EFF5F5")
+    v_lastname.grid(row=2, column=2, sticky="NESW")
+
+    v_number = tk.Label(view_contact, text="Number", font=("Arial", 14), bg="#EFF5F5")
+    v_number.grid(row=2, column=3, sticky="NESW")
+
+    v_address = tk.Label(view_contact, text="Address", font=("Arial", 14), bg="#EFF5F5")
+    v_address.grid(row=2, column=4, sticky="NESW")
+
+    v_back_btn = tk.Button(view_contact, text="Back",bg="#EB6440" ,command=lambda:show_frame(main_menu))
+    v_back_btn.grid(row=no_rows, column=0, sticky="W",ipadx=10, padx=30, pady=15)
+
+    # Full screen to better view the contacts since some informations can be lengthy
+    return root.state("zoomed") 
 
 
 def search_db_via_entry(current_frame):
@@ -279,6 +335,10 @@ def delete():
         show_frame(main_menu)
     return
 
+
+
+
+
 def check_if_empty(details):
     for detail in details:
         if not details.get(detail) or details.get(detail).isspace():
@@ -295,12 +355,13 @@ def in_db(details):
     else:
         return False
 
-
-
-
 def disable_inputs(inputs):
     for input in inputs:
         input.configure(state="disabled")
+
+def delete_widget(widgets):  
+    for widget in widgets:
+        widget.destory()    
 
 def enable_inputs(inputs):
     for input in inputs:
@@ -541,8 +602,8 @@ for number in range(2):
 d_title = tk.Label(delete_contact, text="Delete Contact", font=("Arial", 24), fg="white", bg="#497174")
 d_title.grid(row=0, column=0, columnspan=2, sticky="NESW")
 
-d_title = tk.Label(delete_contact, text="Enter entry number to delete.", font=("Arial", 14), bg="#EFF5F5")
-d_title.grid(row=1, column=0, columnspan=2, sticky="NESW")
+d_description = tk.Label(delete_contact, text="Enter entry number to delete.", font=("Arial", 14), bg="#EFF5F5")
+d_description.grid(row=1, column=0, columnspan=2, sticky="NESW")
 
 d_entry_no_input = tk.Entry(delete_contact, font=("Arial", 12))
 d_entry_no_input.grid(row=2, column=0, sticky="E", padx=30, pady=15)
@@ -593,6 +654,8 @@ d_submit_btn.grid(row=11, column=1, sticky="E", ipadx=10, padx=30, pady=15)
 
 
 
+
+
 # Starting frame
 show_frame(main_menu)
 
@@ -610,3 +673,5 @@ root.mainloop()
 # ACTUALLY EDIT THE PAGE
 
 # If one entry only do not say entries
+
+# add space in message box if neccessary
