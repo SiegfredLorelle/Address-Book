@@ -2,8 +2,6 @@
 
 # Address Book
 
-import cs50
-import sys
 from string import digits, punctuation
 import tkinter as tk
 from tkinter import messagebox  
@@ -23,7 +21,7 @@ def show_frame(frame):
         inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
         clear_inputs(inputs)
 
-    elif frame == edit_contact:
+    elif frame in [edit_contact, delete_contact]:
         # Do not redirect to edit contact frame if db is empty
         if len(db) < 1:
             if messagebox.askyesno(title="Error", message="The Address Book is currently empty.\nWould you like to add a contact?"): 
@@ -32,10 +30,12 @@ def show_frame(frame):
 
         # Hide labels and inputs when no entry number entered
         else:
-            widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_back_btn, e_submit_btn]
+            if frame == edit_contact: 
+                widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_submit_btn]
+            elif frame == delete_contact:
+                        widgets_to_hide = [d_firstname, d_firstname_input, d_lastname, d_lastname_input, d_address ,d_address_input, d_number, d_number_input, d_submit_btn]
             hide_widgets(widgets_to_hide)
 
-    
     return frame.tkraise()
 
 # Check information about contact's details 
@@ -67,9 +67,8 @@ def save_contact():
 
             if details.get(detail).upper() not in countries:
                 if messagebox.askyesno(title="Error", message=f"{details.get(detail).upper()} is NOT a valid country.\n\nGo to python-country-list to see the all countries.\nWould you like to go?"): 
-                    return webbrowser.open_new_tab("https://pytutorial.com/python-country-list")
-                else:
-                    return
+                    webbrowser.open_new_tab("https://pytutorial.com/python-country-list")
+                return
 
         # Ensure names, municipality, and province do not have digits and punctuations
         elif detail in ["first name", "last name", "city/municipality", "province"]:
@@ -111,57 +110,57 @@ def save_contact():
     if in_db(details):
         return
 
-
     # Add contact into db
     db.append(details)
-
-    # Clear inputs
-    inputs = [a_firstname_input, a_lastname_input, a_number_input, a_house_no_input, a_street_village_input, a_city_municipality_input, a_province_input, a_country_input]
-    clear_inputs(inputs)
 
     # Inform user via message box that it is successful and redirect to main menu if no more contacts to add
     if not messagebox.askyesno(title="Success!", message=f"Successfully added {details['first name']} {details['last name']}'s contact information!\n\nWould you like to add another contact?"):
         show_frame(main_menu)    
-    return
 
-
-
-def search_db_via_entry():
     # Clear inputs
-    inputs = [e_firstname_input, e_lastname_input, e_address_input, e_number_input]
+    inputs = [a_firstname_input, a_lastname_input, a_number_input, a_house_no_input, a_street_village_input, a_city_municipality_input, a_province_input, a_country_input]
+    return clear_inputs(inputs)
+
+
+
+def search_db_via_entry(current_frame):
+    # Clear inputs
+    if current_frame == edit_contact:
+        widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_submit_btn]
+        inputs = [e_firstname_input, e_lastname_input, e_address_input, e_number_input]
+    elif current_frame == delete_contact:
+        widgets_to_hide = [d_firstname, d_firstname_input, d_lastname, d_lastname_input, d_address ,d_address_input, d_number, d_number_input, d_submit_btn]
+        inputs = [d_firstname_input, d_lastname_input, d_address_input, d_number_input]
+        enable_inputs(inputs)
+
     clear_inputs(inputs)
 
     # Get entry number
     global entry_number
-    entry_number = e_entry_no_input.get()
+    if current_frame == edit_contact:
+        entry_number = e_entry_no_input.get()
+    elif current_frame == delete_contact:
+        entry_number = d_entry_no_input.get()
 
     # Ensure entry number is not empty
     if not entry_number:
         # Clear and hide widgets
-        inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
-        widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_back_btn, e_submit_btn]
         clear_inputs(inputs)
         hide_widgets(widgets_to_hide)
-
         return messagebox.showerror(title="Error", message="Enter entry numbers to edit.") 
 
     # Ensure entry number is vaid
     for character in entry_number:
         if character.isspace():
             # Clear and hide widgets
-            inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
-            widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_back_btn, e_submit_btn]
             clear_inputs(inputs)
             hide_widgets(widgets_to_hide)
             return messagebox.showerror(title="Error", message="Avoid using whitespaces.") 
 
         if character not in digits:
             # Clear and hide widgets
-            inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
-            widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_back_btn, e_submit_btn]
             clear_inputs(inputs)
             hide_widgets(widgets_to_hide)
-
             return messagebox.showerror(title="Error", message="Entry numbers can only be be 1-50 inclusive.") 
        
        # Change entry number from string to int
@@ -169,42 +168,57 @@ def search_db_via_entry():
 
         if entry_number < 1 or entry_number > 50:
             # Clear and hide widgets
-            inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
-            widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_back_btn, e_submit_btn]
             clear_inputs(inputs)
             hide_widgets(widgets_to_hide)
-
             return messagebox.showerror(title="Error", message="Entry numbers can only be be 1-50 inclusive.") 
 
     number_of_entries_in_db = len(db)
     if entry_number > number_of_entries_in_db:
             # Clear and hide widgets
-            inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
-            widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_back_btn, e_submit_btn]
             clear_inputs(inputs)
             hide_widgets(widgets_to_hide)
-
             return messagebox.showerror(title="Error", message=f"The Address Book only contains {number_of_entries_in_db} entries.") 
 
-    # Open widgets and insert their values based on entry number    
-    e_firstname.grid(row=5, column=0, sticky="NESW", padx=30)
-    e_firstname_input.insert(0, db[entry_number - 1].get("first name"))
-    e_firstname_input.grid(row=5, column=1, sticky="NESW", padx=30)
+    # Open widgets and insert their values based on entry number   
+    if current_frame == edit_contact: 
+        e_firstname.grid(row=5, column=0, sticky="NESW", padx=30)
+        e_firstname_input.insert(0, db[entry_number - 1].get("first name"))
+        e_firstname_input.grid(row=5, column=1, sticky="NESW", padx=30)
 
-    e_lastname.grid(row=6, column=0, sticky="NESW")
-    e_lastname_input.insert(0, db[entry_number - 1].get("last name"))
-    e_lastname_input.grid(row=6, column=1, sticky="NESW", padx=30)
-    
-    e_address.grid(row=7, column=0, sticky="NESW", padx=30)
-    e_address_input.insert(0, db[entry_number - 1].get("address"))
-    e_address_input.grid(row=7, column=1, sticky="NESW", padx=30)
+        e_lastname.grid(row=6, column=0, sticky="NESW")
+        e_lastname_input.insert(0, db[entry_number - 1].get("last name"))
+        e_lastname_input.grid(row=6, column=1, sticky="NESW", padx=30)
+        
+        e_address.grid(row=7, column=0, sticky="NESW", padx=30)
+        e_address_input.insert(0, db[entry_number - 1].get("address"))
+        e_address_input.grid(row=7, column=1, sticky="NESW", padx=30)
 
-    e_number.grid(row=8, column=0, sticky="NESW")
-    e_number_input.insert(0, db[entry_number - 1].get("contact number"))
-    e_number_input.grid(row=8, column=1, sticky="NESW", padx=30)
+        e_number.grid(row=8, column=0, sticky="NESW")
+        e_number_input.insert(0, db[entry_number - 1].get("contact number"))
+        e_number_input.grid(row=8, column=1, sticky="NESW", padx=30)
 
-    e_back_btn.grid(row=12, column=0, sticky="W", ipadx=10, padx=30, pady=15)
-    e_submit_btn.grid(row=12, column=1, sticky="E", ipadx=10, padx=30, pady=15)
+        e_submit_btn.grid(row=11, column=1, sticky="E", ipadx=10, padx=30, pady=15)
+
+    elif current_frame == delete_contact:
+        d_firstname.grid(row=5, column=0, sticky="NESW", padx=30)
+        d_firstname_input.insert(0, db[entry_number - 1].get("first name"))
+        d_firstname_input.grid(row=5, column=1, sticky="NESW", padx=30)
+        
+        d_lastname.grid(row=6, column=0, sticky="NESW")
+        d_lastname_input.insert(0, db[entry_number - 1].get("last name"))
+        d_lastname_input.grid(row=6, column=1, sticky="NESW", padx=30)
+
+        d_address.grid(row=7, column=0, sticky="NESW", padx=30)
+        d_address_input.insert(0, db[entry_number - 1].get("address"))
+        d_address_input.grid(row=7, column=1, sticky="NESW", padx=30)
+
+        d_number.grid(row=8, column=0, sticky="NESW")
+        d_number_input.insert(0, db[entry_number - 1].get("contact number"))
+        d_number_input.grid(row=8, column=1, sticky="NESW", padx=30)
+
+        d_submit_btn.grid(row=11, column=1, sticky="E", ipadx=10, padx=30, pady=15)
+
+        disable_inputs(inputs)
     return
 
 def save_edit():
@@ -253,9 +267,17 @@ def save_edit():
 
     # Clear and hide widgets for the new contact to edit
     inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
-    widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_back_btn, e_submit_btn]
+    widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_submit_btn]
     clear_inputs(inputs)
     hide_widgets(widgets_to_hide)
+    return
+
+def delete():
+    print(db[entry_number - 1])
+    if messagebox.askyesno(title="Delete?", message=f"Are you sure you want to delete {db[entry_number - 1].get('first name')} {db[entry_number - 1].get('last name')} in your contact?"):
+        db.pop(entry_number - 1)
+        show_frame(main_menu)
+    return
 
 def check_if_empty(details):
     for detail in details:
@@ -272,6 +294,17 @@ def in_db(details):
                 return True
     else:
         return False
+
+
+
+
+def disable_inputs(inputs):
+    for input in inputs:
+        input.configure(state="disabled")
+
+def enable_inputs(inputs):
+    for input in inputs:
+        input.configure(state="normal")
 
 def hide_widgets(widgets):
     for widget in widgets:
@@ -313,6 +346,8 @@ db = []
 # JUST FOR TESTING TO NO LONGER NEED TO ADD A CONTACT
 db.append({"first name": "SIEG", "last name": "MINA", "contact number": "0945160",
                         "address": "CANADA"})
+
+
 
 # Main Menu (mm in var stands for main menu)
 # Configure the number of rows and column main menu have
@@ -428,13 +463,14 @@ a_country_input.grid(row=10, column=1, sticky="NESW", padx=30)
 a_back_btn = tk.Button(add_contact, text="Back", font=("Arial", 12), bg="#EFF5F5", command=lambda:show_frame(main_menu))
 a_back_btn.grid(row=11, column=0, sticky="W", ipadx=10, padx=30, pady=15)
 
-# Submit btn (change function)
+# Submit btn
 a_submit_btn = tk.Button(add_contact, text="Submit", font=("Arial", 12), bg="#EB6440", command=save_contact)
 a_submit_btn.grid(row=11, column=1, sticky="E", ipadx=10, padx=30, pady=15)
 
 
+
 # Edit Contact (e in var stands for edit contact frame) 
-# Configure the number of rows and column in add contact frame
+# Configure the number of rows and column in edit contact frame
 for number in range(12):
     edit_contact.grid_rowconfigure(number, weight=1)
 
@@ -451,57 +487,108 @@ e_title.grid(row=1, column=0, columnspan=2, sticky="NESW")
 e_entry_no_input = tk.Entry(edit_contact, font=("Arial", 12))
 e_entry_no_input.grid(row=2, column=0, sticky="E", padx=30, pady=15)
 
-e_submit_btn = tk.Button(edit_contact, text="Search", font=("Arial", 12), bg="#EB6440", command=search_db_via_entry)
-e_submit_btn.grid(row=2, column=1, sticky="W", ipadx=10, pady=15)
+e_submit_entry_btn = tk.Button(edit_contact, text="Search", font=("Arial", 12), bg="#EB6440", command=lambda:search_db_via_entry(edit_contact))
+e_submit_entry_btn.grid(row=2, column=1, sticky="W", ipadx=10, pady=15)
 
 # Forms
 # Firstname
 e_firstname = tk.Label(edit_contact, text="First Name", font=("Arial", 12), bg="#EFF5F5")
 e_firstname.grid(row=5, column=0, sticky="NESW", padx=30)
-e_firstname.grid_forget()
 
 e_firstname_input = tk.Entry(edit_contact, font=("Arial", 12))
 e_firstname_input.grid(row=5, column=1, sticky="NESW", padx=30)
-e_firstname_input.grid_forget()
 
 #Last Name
 e_lastname = tk.Label(edit_contact, text="Last Name", font=("Arial", 12), bg="#EFF5F5")
 e_lastname.grid(row=6, column=0, sticky="NESW")
-e_lastname.grid_forget()
 
 e_lastname_input = tk.Entry(edit_contact, font=("Arial", 12))
 e_lastname_input.grid(row=6, column=1, sticky="NESW", padx=30)
-e_lastname_input.grid_forget()
 
 # Address
 e_address = tk.Label(edit_contact, text="Address", font=("Arial", 12), bg="#EFF5F5")
 e_address.grid(row=7, column=0, sticky="NESW", padx=30)
-e_address.grid_forget()
 
 e_address_input = tk.Entry(edit_contact, font=("Arial", 12))
 e_address_input.grid(row=7, column=1, sticky="NESW", padx=30)
-e_address_input.grid_forget()
-
 
 # Contact Number
 e_number = tk.Label(edit_contact, text="Contact Number", font=("Arial", 12), bg="#EFF5F5")
 e_number.grid(row=8, column=0, sticky="NESW")
-e_number.grid_forget()
 
 e_number_input = tk.Entry(edit_contact, font=("Arial", 12))
 e_number_input.grid(row=8, column=1, sticky="NESW", padx=30, pady=15)
-e_number_input.grid_forget()
-
 
 # Back btn to main menu
 e_back_btn = tk.Button(edit_contact, text="Back", font=("Arial", 12), bg="#EFF5F5", command=lambda:show_frame(main_menu))
-e_back_btn.grid(row=12, column=0, sticky="W", ipadx=10, padx=30, pady=15)
-e_back_btn.grid_forget()
+e_back_btn.grid(row=11, column=0, sticky="W", ipadx=10, padx=30, pady=15)
 
 # Submit btn
 e_submit_btn = tk.Button(edit_contact, text="Edit", font=("Arial", 12), bg="#EB6440", command=save_edit)
-e_submit_btn.grid(row=12, column=1, sticky="E", ipadx=10, padx=30, pady=15)
-e_submit_btn.grid_forget()
+e_submit_btn.grid(row=11, column=1, sticky="E", ipadx=10, padx=30, pady=15)
+
+
+
+# Delete Contact (d in var stands for delete contact frame) 
+# Configure the number of rows and column in delete contact frame
+for number in range(12):
+    delete_contact.grid_rowconfigure(number, weight=1)
+
+for number in range(2):
+    delete_contact.grid_columnconfigure(number, weight=1)
+
+# Title and description
+d_title = tk.Label(delete_contact, text="Delete Contact", font=("Arial", 24), fg="white", bg="#497174")
+d_title.grid(row=0, column=0, columnspan=2, sticky="NESW")
+
+d_title = tk.Label(delete_contact, text="Enter entry number to delete.", font=("Arial", 14), bg="#EFF5F5")
+d_title.grid(row=1, column=0, columnspan=2, sticky="NESW")
+
+d_entry_no_input = tk.Entry(delete_contact, font=("Arial", 12))
+d_entry_no_input.grid(row=2, column=0, sticky="E", padx=30, pady=15)
+
+d_submit_entry_btn_btn = tk.Button(delete_contact, text="Search", font=("Arial", 12), bg="#EB6440", command=lambda:search_db_via_entry(delete_contact))
+d_submit_entry_btn_btn.grid(row=2, column=1, sticky="W", ipadx=10, pady=15)
+
+# Details
+# Firstname
+d_firstname = tk.Label(delete_contact, text="First Name", font=("Arial", 12), bg="#EFF5F5")
+d_firstname.grid(row=5, column=0, sticky="NESW", padx=30)
+
+d_firstname_input = tk.Entry(delete_contact, font=("Arial", 12))
+d_firstname_input.grid(row=5, column=1, sticky="NESW", padx=30)
+
+#Last Name
+d_lastname = tk.Label(delete_contact, text="Last Name", font=("Arial", 12), bg="#EFF5F5")
+d_lastname.grid(row=6, column=0, sticky="NESW")
+
+d_lastname_input = tk.Entry(delete_contact, font=("Arial", 12))
+d_lastname_input.grid(row=6, column=1, sticky="NESW", padx=30)
+
+# Address
+d_address = tk.Label(delete_contact, text="Address", font=("Arial", 12), bg="#EFF5F5")
+d_address.grid(row=7, column=0, sticky="NESW", padx=30)
+
+d_address_input = tk.Entry(delete_contact, font=("Arial", 12))
+d_address_input.grid(row=7, column=1, sticky="NESW", padx=30)
+
+# Contact Number
+d_number = tk.Label(delete_contact, text="Contact Number", font=("Arial", 12), bg="#EFF5F5")
+d_number.grid(row=8, column=0, sticky="NESW")
+
+d_number_input = tk.Entry(delete_contact, font=("Arial", 12))
+d_number_input.grid(row=8, column=1, sticky="NESW", padx=30, pady=15)
+
+# Back btn to main menu
+d_back_btn = tk.Button(delete_contact, text="Back", font=("Arial", 12), bg="#EFF5F5", command=lambda:show_frame(main_menu))
+d_back_btn.grid(row=11, column=0, sticky="W", ipadx=10, padx=30, pady=15)
+
+# Submit btn
+d_submit_btn = tk.Button(delete_contact, text="Delete", font=("Arial", 12), bg="#EB6440", command=delete)
+d_submit_btn.grid(row=11, column=1, sticky="E", ipadx=10, padx=30, pady=15)
+
+
+
 
 
 
@@ -521,3 +608,5 @@ root.mainloop()
 # CHANGE WIDTH OF ENTRY NUMBER INPUT IN EDIT
 
 # ACTUALLY EDIT THE PAGE
+
+# If one entry only do not say entries
