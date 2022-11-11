@@ -11,7 +11,7 @@ import re
 import webbrowser
 
 
-from helpers import remove_unnecessary_space
+from helpers import remove_unnecessary_spaces, capitalize_details
 # from helpers import get_name, get_house_number, get_street_vilage, get_city_municipality, get_province, get_country
 
 
@@ -49,13 +49,11 @@ def save_contact():
 
     # Ensure inputs are valid
     # Ensure all details are filled up and not only filled with whitespace
-    for detail in details:
-        if not details.get(detail) or details.get(detail).isspace():
-            return messagebox.showerror(title="Error", message="Details are incomplete. Please fill up all the details.") 
+    if check_if_empty(details):
+        return
 
     # Remove unnecessary spaces in all values (starting, ending, and trailing)
-    for detail in details:
-        details[detail] = re.sub(' +', ' ',details.get(detail).strip())
+    details = remove_unnecessary_spaces(details)
     
     # Check individual details for its validity
     for detail in details:
@@ -63,6 +61,7 @@ def save_contact():
         if detail == "country":
             # https://pytutorial.com/python-country-list
             # TODO FIX THE NAMES OF SOME COUNTRIES
+            global countries
             countries = ['Afghanistan', 'Aland Islands', 'Albania', 'Algeria', 'American Samoa', 'Andorra', 'Angola', 'Anguilla', 'Antarctica', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bermuda', 'Bhutan', 'Bolivia, Plurinational State of', 'Bonaire, Sint Eustatius and Saba', 'Bosnia and Herzegovina', 'Botswana', 'Bouvet Island', 'Brazil', 'British Indian Ocean Territory', 'Brunei Darussalam', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Cayman Islands', 'Central African Republic', 'Chad', 'Chile', 'China', 'Christmas Island', 'Cocos (Keeling) Islands', 'Colombia', 'Comoros', 'Congo', 'Congo, The Democratic Republic of the', 'Cook Islands', 'Costa Rica', "Côte d'Ivoire", 'Croatia', 'Cuba', 'Curaçao', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Falkland Islands (Malvinas)', 'Faroe Islands', 'Fiji', 'Finland', 'France', 'French Guiana', 'French Polynesia', 'French Southern Territories', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Gibraltar', 'Greece', 'Greenland', 'Grenada', 'Guadeloupe', 'Guam', 'Guatemala', 'Guernsey', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Heard Island and McDonald Islands', 'Holy See (Vatican City State)', 'Honduras', 'Hong Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran, Islamic Republic of', 'Iraq', 'Ireland', 'Isle of Man', 'Israel', 'Italy', 'Jamaica', 'Japan', 'Jersey', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', "Korea, Democratic People's Republic of", 'Korea, Republic of', 'Kuwait', 'Kyrgyzstan', "Lao People's Democratic Republic", 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macao', 'Macedonia, Republic of', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Martinique', 'Mauritania', 'Mauritius', 'Mayotte', 'Mexico', 'Micronesia, Federated States of', 'Moldova, Republic of', 'Monaco', 'Mongolia', 'Montenegro', 'Montserrat', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Caledonia', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Niue', 'Norfolk Island', 'Northern Mariana Islands', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestinian Territory, Occupied', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Pitcairn', 'Poland', 'Portugal', 'Puerto Rico', 'Qatar', 'Réunion', 'Romania', 'Russian Federation', 'Rwanda', 'Saint Barthélemy', 'Saint Helena, Ascension and Tristan da Cunha', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Martin (French part)', 'Saint Pierre and Miquelon', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Sint Maarten (Dutch part)', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Georgia and the South Sandwich Islands', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'South Sudan', 'Svalbard and Jan Mayen', 'Swaziland', 'Sweden', 'Switzerland', 'Syrian Arab Republic', 'Taiwan, Province of China', 'Tajikistan', 'Tanzania, United Republic of', 'Thailand', 'Timor-Leste', 'Togo', 'Tokelau', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Turks and Caicos Islands', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'United States Minor Outlying Islands', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Venezuela, Bolivarian Republic of', 'Viet Nam', 'Virgin Islands, British', 'Virgin Islands, U.S.', 'Wallis and Futuna', 'Yemen', 'Zambia', 'Zimbabwe']
             countries = [country.upper() for country in countries]
 
@@ -106,13 +105,11 @@ def save_contact():
     details["address"] = address
     
     # Capitalize all details for uniformity
-    for detail in details:
-        details[detail] = details.get(detail).upper()
+    details = capitalize_details(details)
     
     # Ensure person is not already in db
-    for entry in db:
-        if entry["first name"] == details["first name"] and entry["last name"] == details["last name"] and entry["contact number"] == details["contact number"]:
-            return messagebox.showerror(title="Error", message=f"{details['first name'].upper()} {details['last name'].upper()}'s contact information is already saved.") 
+    if in_db(details):
+        return
 
 
     # Add contact into db
@@ -135,25 +132,58 @@ def search_db_via_entry():
     clear_inputs(inputs)
 
     # Get entry number
+    global entry_number
     entry_number = e_entry_no_input.get()
 
     # Ensure entry number is not empty
     if not entry_number:
+        # Clear and hide widgets
+        inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
+        widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_back_btn, e_submit_btn]
+        clear_inputs(inputs)
+        hide_widgets(widgets_to_hide)
+
         return messagebox.showerror(title="Error", message="Enter entry numbers to edit.") 
 
     # Ensure entry number is vaid
     for character in entry_number:
         if character.isspace():
+            # Clear and hide widgets
+            inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
+            widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_back_btn, e_submit_btn]
+            clear_inputs(inputs)
+            hide_widgets(widgets_to_hide)
             return messagebox.showerror(title="Error", message="Avoid using whitespaces.") 
 
         if character not in digits:
+            # Clear and hide widgets
+            inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
+            widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_back_btn, e_submit_btn]
+            clear_inputs(inputs)
+            hide_widgets(widgets_to_hide)
+
             return messagebox.showerror(title="Error", message="Entry numbers can only be be 1-50 inclusive.") 
+       
+       # Change entry number from string to int
         entry_number = int(entry_number)
+
         if entry_number < 1 or entry_number > 50:
+            # Clear and hide widgets
+            inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
+            widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_back_btn, e_submit_btn]
+            clear_inputs(inputs)
+            hide_widgets(widgets_to_hide)
+
             return messagebox.showerror(title="Error", message="Entry numbers can only be be 1-50 inclusive.") 
 
     number_of_entries_in_db = len(db)
     if entry_number > number_of_entries_in_db:
+            # Clear and hide widgets
+            inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
+            widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_back_btn, e_submit_btn]
+            clear_inputs(inputs)
+            hide_widgets(widgets_to_hide)
+
             return messagebox.showerror(title="Error", message=f"The Address Book only contains {number_of_entries_in_db} entries.") 
 
     # Open widgets and insert their values based on entry number    
@@ -175,44 +205,25 @@ def search_db_via_entry():
 
     e_back_btn.grid(row=12, column=0, sticky="W", ipadx=10, padx=30, pady=15)
     e_submit_btn.grid(row=12, column=1, sticky="E", ipadx=10, padx=30, pady=15)
-
     return
 
 def save_edit():
     details = {"first name": e_firstname_input.get(), "last name": e_lastname_input.get(),
                 "address": e_address_input.get(), "contact number": e_number_input.get()
     }
-    
-    # Check if no changes were made
-
-
 
     # Ensure inputs are valid
     # Ensure all details are filled up and not only filled with whitespace
-    for detail in details:
-        if not details.get(detail) or details.get(detail).isspace():
-            return messagebox.showerror(title="Error", message="Details are incomplete. Please fill up all the details.") 
+    if check_if_empty(details):
+        return
 
     # Remove unnecessary spaces in all values (starting, ending, and trailing)
-    for detail in details:
-        details[detail] = re.sub(' +', ' ',details.get(detail).strip())
+    details = remove_unnecessary_spaces(details)
 
     # Check if input details is valid
     for detail in details:
-        # Check if country is valid
-        if detail == "country":
-            # https://pytutorial.com/python-country-list
-            # TODO FIX THE NAMES OF SOME COUNTRIES
-            countries = ['Afghanistan', 'Aland Islands', 'Albania', 'Algeria', 'American Samoa', 'Andorra', 'Angola', 'Anguilla', 'Antarctica', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bermuda', 'Bhutan', 'Bolivia, Plurinational State of', 'Bonaire, Sint Eustatius and Saba', 'Bosnia and Herzegovina', 'Botswana', 'Bouvet Island', 'Brazil', 'British Indian Ocean Territory', 'Brunei Darussalam', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Cayman Islands', 'Central African Republic', 'Chad', 'Chile', 'China', 'Christmas Island', 'Cocos (Keeling) Islands', 'Colombia', 'Comoros', 'Congo', 'Congo, The Democratic Republic of the', 'Cook Islands', 'Costa Rica', "Côte d'Ivoire", 'Croatia', 'Cuba', 'Curaçao', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Falkland Islands (Malvinas)', 'Faroe Islands', 'Fiji', 'Finland', 'France', 'French Guiana', 'French Polynesia', 'French Southern Territories', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Gibraltar', 'Greece', 'Greenland', 'Grenada', 'Guadeloupe', 'Guam', 'Guatemala', 'Guernsey', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Heard Island and McDonald Islands', 'Holy See (Vatican City State)', 'Honduras', 'Hong Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran, Islamic Republic of', 'Iraq', 'Ireland', 'Isle of Man', 'Israel', 'Italy', 'Jamaica', 'Japan', 'Jersey', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', "Korea, Democratic People's Republic of", 'Korea, Republic of', 'Kuwait', 'Kyrgyzstan', "Lao People's Democratic Republic", 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macao', 'Macedonia, Republic of', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Martinique', 'Mauritania', 'Mauritius', 'Mayotte', 'Mexico', 'Micronesia, Federated States of', 'Moldova, Republic of', 'Monaco', 'Mongolia', 'Montenegro', 'Montserrat', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Caledonia', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Niue', 'Norfolk Island', 'Northern Mariana Islands', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestinian Territory, Occupied', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Pitcairn', 'Poland', 'Portugal', 'Puerto Rico', 'Qatar', 'Réunion', 'Romania', 'Russian Federation', 'Rwanda', 'Saint Barthélemy', 'Saint Helena, Ascension and Tristan da Cunha', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Martin (French part)', 'Saint Pierre and Miquelon', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Sint Maarten (Dutch part)', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Georgia and the South Sandwich Islands', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'South Sudan', 'Svalbard and Jan Mayen', 'Swaziland', 'Sweden', 'Switzerland', 'Syrian Arab Republic', 'Taiwan, Province of China', 'Tajikistan', 'Tanzania, United Republic of', 'Thailand', 'Timor-Leste', 'Togo', 'Tokelau', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Turks and Caicos Islands', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'United States Minor Outlying Islands', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Venezuela, Bolivarian Republic of', 'Viet Nam', 'Virgin Islands, British', 'Virgin Islands, U.S.', 'Wallis and Futuna', 'Yemen', 'Zambia', 'Zimbabwe']
-            countries = [country.upper() for country in countries]
-
-            if details.get(detail).upper() not in countries:
-                if messagebox.askyesno(title="Error", message=f"{details.get(detail).upper()} is NOT a valid country.\n\nGo to python-country-list to see the all countries.\nWould you like to go?"): 
-                    return webbrowser.open_new_tab("https://pytutorial.com/python-country-list")
-                else:
-                    return
         # Check if names is valid
-        elif detail in ["first name", "last name"]:
+        if detail in ["first name", "last name"]:
             for character in details.get(detail):
                 if character in digits or character in punctuation:
                     return messagebox.showerror(title="Error", message=f"{detail.upper()} must NOT contain numbers or punctuations.") 
@@ -224,22 +235,43 @@ def save_edit():
                     return messagebox.showerror(title="Error", message=f"{detail.upper()} must only contain digits.")     
 
     # Capitalize all details for uniformity
-    for detail in details:
-        details[detail] = details.get(detail).upper()
+    details = capitalize_details(details)
 
-    # Ensure person is not already in db
-    for entry in db:
-        if entry["first name"] == details["first name"] and entry["last name"] == details["last name"] and entry["contact number"] == details["contact number"]:
-            return messagebox.showerror(title="Error", message=f"{details['first name'].upper()} {details['last name'].upper()}'s contact information is already saved.") 
-
+    # Ensure an edit is made
+    if details["first name"] == db[entry_number - 1].get("first name") and details["last name"] == db[entry_number - 1].get("last name") and details["address"] == db[entry_number - 1].get("address") and details["contact number"] == db[entry_number - 1].get("contact number"):
+        return messagebox.showerror(title="Error", message="No changes were made.")     
 
     # Save edit by equating db
+    keys = ["first name", "last name", "address", "contact number"]
+    for key in keys:
+        db[entry_number - 1][key] = details.get(key)
 
-    # Clear inputs
 
-    # Inform user that it is success
-    return
+    # Inform user via message box that it is successful and redirect to main menu if no more contacts to add
+    if not messagebox.askyesno(title="Success!", message=f"Successfully edited {details['first name']} {details['last name']}'s contact information!\n\nWould you like to edit another contact?"):
+        show_frame(main_menu)    
 
+    # Clear and hide widgets for the new contact to edit
+    inputs = [e_entry_no_input, e_firstname_input, e_lastname_input, e_address_input, e_number_input]
+    widgets_to_hide = [e_firstname, e_firstname_input, e_lastname, e_lastname_input, e_address ,e_address_input, e_number, e_number_input, e_back_btn, e_submit_btn]
+    clear_inputs(inputs)
+    hide_widgets(widgets_to_hide)
+
+def check_if_empty(details):
+    for detail in details:
+        if not details.get(detail) or details.get(detail).isspace():
+            messagebox.showerror(title="Error", message="Details are incomplete. Please fill up all the details.") 
+            return True
+    else:
+        return False
+
+def in_db(details):
+    for entry in db:
+            if entry["first name"] == details["first name"] and entry["last name"] == details["last name"] and entry["contact number"] == details["contact number"]:
+                messagebox.showerror(title="Error", message=f"{details['first name'].upper()} {details['last name'].upper()}'s contact information is already saved.") 
+                return True
+    else:
+        return False
 
 def hide_widgets(widgets):
     for widget in widgets:
@@ -279,8 +311,8 @@ for frame in [main_menu, add_contact, edit_contact, delete_contact, view_contact
 db = []
 
 # JUST FOR TESTING TO NO LONGER NEED TO ADD A CONTACT
-db.append({"first name": "Sieg", "last name": "Mina", "contact number": "0945160",
-                        "address": "Canada"})
+db.append({"first name": "SIEG", "last name": "MINA", "contact number": "0945160",
+                        "address": "CANADA"})
 
 # Main Menu (mm in var stands for main menu)
 # Configure the number of rows and column main menu have
