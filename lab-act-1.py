@@ -36,11 +36,10 @@ def show_frame(frame):
             hide_widgets(widgets_to_hide)
 
     
-        
     return frame.tkraise()
 
-# Check information about contact's details
-def check_infos():
+# Check information about contact's details 
+def save_contact():
     # Get all information about the contact's and put in a dictionary
     details = {"first name": a_firstname_input.get(), "last name": a_lastname_input.get(), "contact number": a_number_input.get(),
                             "house number": a_house_no_input.get(), "street/village": a_street_village_input.get(), 
@@ -119,7 +118,7 @@ def check_infos():
     # Add contact into db
     db.append(details)
 
-    # Clear inputs (aka entries)
+    # Clear inputs
     inputs = [a_firstname_input, a_lastname_input, a_number_input, a_house_no_input, a_street_village_input, a_city_municipality_input, a_province_input, a_country_input]
     clear_inputs(inputs)
 
@@ -138,8 +137,15 @@ def search_db_via_entry():
     # Get entry number
     entry_number = e_entry_no_input.get()
 
+    # Ensure entry number is not empty
+    if not entry_number:
+        return messagebox.showerror(title="Error", message="Enter entry numbers to edit.") 
+
     # Ensure entry number is vaid
     for character in entry_number:
+        if character.isspace():
+            return messagebox.showerror(title="Error", message="Avoid using whitespaces.") 
+
         if character not in digits:
             return messagebox.showerror(title="Error", message="Entry numbers can only be be 1-50 inclusive.") 
         entry_number = int(entry_number)
@@ -150,7 +156,7 @@ def search_db_via_entry():
     if entry_number > number_of_entries_in_db:
             return messagebox.showerror(title="Error", message=f"The Address Book only contains {number_of_entries_in_db} entries.") 
 
-    # Open widgets and insert their values based on entry number
+    # Open widgets and insert their values based on entry number    
     e_firstname.grid(row=5, column=0, sticky="NESW", padx=30)
     e_firstname_input.insert(0, db[entry_number - 1].get("first name"))
     e_firstname_input.grid(row=5, column=1, sticky="NESW", padx=30)
@@ -165,12 +171,75 @@ def search_db_via_entry():
 
     e_number.grid(row=8, column=0, sticky="NESW")
     e_number_input.insert(0, db[entry_number - 1].get("contact number"))
-    e_number_input.grid(row=8, column=1, sticky="NESW", padx=30, pady=15)
+    e_number_input.grid(row=8, column=1, sticky="NESW", padx=30)
 
     e_back_btn.grid(row=12, column=0, sticky="W", ipadx=10, padx=30, pady=15)
     e_submit_btn.grid(row=12, column=1, sticky="E", ipadx=10, padx=30, pady=15)
 
     return
+
+def save_edit():
+    details = {"first name": e_firstname_input.get(), "last name": e_lastname_input.get(),
+                "address": e_address_input.get(), "contact number": e_number_input.get()
+    }
+    
+    # Check if no changes were made
+
+
+
+    # Ensure inputs are valid
+    # Ensure all details are filled up and not only filled with whitespace
+    for detail in details:
+        if not details.get(detail) or details.get(detail).isspace():
+            return messagebox.showerror(title="Error", message="Details are incomplete. Please fill up all the details.") 
+
+    # Remove unnecessary spaces in all values (starting, ending, and trailing)
+    for detail in details:
+        details[detail] = re.sub(' +', ' ',details.get(detail).strip())
+
+    # Check if input details is valid
+    for detail in details:
+        # Check if country is valid
+        if detail == "country":
+            # https://pytutorial.com/python-country-list
+            # TODO FIX THE NAMES OF SOME COUNTRIES
+            countries = ['Afghanistan', 'Aland Islands', 'Albania', 'Algeria', 'American Samoa', 'Andorra', 'Angola', 'Anguilla', 'Antarctica', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bermuda', 'Bhutan', 'Bolivia, Plurinational State of', 'Bonaire, Sint Eustatius and Saba', 'Bosnia and Herzegovina', 'Botswana', 'Bouvet Island', 'Brazil', 'British Indian Ocean Territory', 'Brunei Darussalam', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Cayman Islands', 'Central African Republic', 'Chad', 'Chile', 'China', 'Christmas Island', 'Cocos (Keeling) Islands', 'Colombia', 'Comoros', 'Congo', 'Congo, The Democratic Republic of the', 'Cook Islands', 'Costa Rica', "Côte d'Ivoire", 'Croatia', 'Cuba', 'Curaçao', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Falkland Islands (Malvinas)', 'Faroe Islands', 'Fiji', 'Finland', 'France', 'French Guiana', 'French Polynesia', 'French Southern Territories', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Gibraltar', 'Greece', 'Greenland', 'Grenada', 'Guadeloupe', 'Guam', 'Guatemala', 'Guernsey', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Heard Island and McDonald Islands', 'Holy See (Vatican City State)', 'Honduras', 'Hong Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran, Islamic Republic of', 'Iraq', 'Ireland', 'Isle of Man', 'Israel', 'Italy', 'Jamaica', 'Japan', 'Jersey', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', "Korea, Democratic People's Republic of", 'Korea, Republic of', 'Kuwait', 'Kyrgyzstan', "Lao People's Democratic Republic", 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macao', 'Macedonia, Republic of', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Martinique', 'Mauritania', 'Mauritius', 'Mayotte', 'Mexico', 'Micronesia, Federated States of', 'Moldova, Republic of', 'Monaco', 'Mongolia', 'Montenegro', 'Montserrat', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Caledonia', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Niue', 'Norfolk Island', 'Northern Mariana Islands', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestinian Territory, Occupied', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Pitcairn', 'Poland', 'Portugal', 'Puerto Rico', 'Qatar', 'Réunion', 'Romania', 'Russian Federation', 'Rwanda', 'Saint Barthélemy', 'Saint Helena, Ascension and Tristan da Cunha', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Martin (French part)', 'Saint Pierre and Miquelon', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Sint Maarten (Dutch part)', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Georgia and the South Sandwich Islands', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'South Sudan', 'Svalbard and Jan Mayen', 'Swaziland', 'Sweden', 'Switzerland', 'Syrian Arab Republic', 'Taiwan, Province of China', 'Tajikistan', 'Tanzania, United Republic of', 'Thailand', 'Timor-Leste', 'Togo', 'Tokelau', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Turks and Caicos Islands', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'United States Minor Outlying Islands', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Venezuela, Bolivarian Republic of', 'Viet Nam', 'Virgin Islands, British', 'Virgin Islands, U.S.', 'Wallis and Futuna', 'Yemen', 'Zambia', 'Zimbabwe']
+            countries = [country.upper() for country in countries]
+
+            if details.get(detail).upper() not in countries:
+                if messagebox.askyesno(title="Error", message=f"{details.get(detail).upper()} is NOT a valid country.\n\nGo to python-country-list to see the all countries.\nWould you like to go?"): 
+                    return webbrowser.open_new_tab("https://pytutorial.com/python-country-list")
+                else:
+                    return
+        # Check if names is valid
+        elif detail in ["first name", "last name"]:
+            for character in details.get(detail):
+                if character in digits or character in punctuation:
+                    return messagebox.showerror(title="Error", message=f"{detail.upper()} must NOT contain numbers or punctuations.") 
+
+        # Ensure contact number has only number and some special charachters
+        elif detail == "contact number":
+            for character in details.get(detail):
+                if character not in digits and character not in "()-/+":
+                    return messagebox.showerror(title="Error", message=f"{detail.upper()} must only contain digits.")     
+
+    # Capitalize all details for uniformity
+    for detail in details:
+        details[detail] = details.get(detail).upper()
+
+    # Ensure person is not already in db
+    for entry in db:
+        if entry["first name"] == details["first name"] and entry["last name"] == details["last name"] and entry["contact number"] == details["contact number"]:
+            return messagebox.showerror(title="Error", message=f"{details['first name'].upper()} {details['last name'].upper()}'s contact information is already saved.") 
+
+
+    # Save edit by equating db
+
+    # Clear inputs
+
+    # Inform user that it is success
+    return
+
 
 def hide_widgets(widgets):
     for widget in widgets:
@@ -328,7 +397,7 @@ a_back_btn = tk.Button(add_contact, text="Back", font=("Arial", 12), bg="#EFF5F5
 a_back_btn.grid(row=11, column=0, sticky="W", ipadx=10, padx=30, pady=15)
 
 # Submit btn (change function)
-a_submit_btn = tk.Button(add_contact, text="Submit", font=("Arial", 12), bg="#EB6440", command=check_infos)
+a_submit_btn = tk.Button(add_contact, text="Submit", font=("Arial", 12), bg="#EB6440", command=save_contact)
 a_submit_btn.grid(row=11, column=1, sticky="E", ipadx=10, padx=30, pady=15)
 
 
@@ -398,7 +467,7 @@ e_back_btn.grid(row=12, column=0, sticky="W", ipadx=10, padx=30, pady=15)
 e_back_btn.grid_forget()
 
 # Submit btn
-e_submit_btn = tk.Button(edit_contact, text="Edit", font=("Arial", 12), bg="#EB6440", command=check_infos)
+e_submit_btn = tk.Button(edit_contact, text="Edit", font=("Arial", 12), bg="#EB6440", command=save_edit)
 e_submit_btn.grid(row=12, column=1, sticky="E", ipadx=10, padx=30, pady=15)
 e_submit_btn.grid_forget()
 
@@ -407,6 +476,7 @@ e_submit_btn.grid_forget()
 
 # Starting frame
 show_frame(main_menu)
+
 # Reprompt when closing
 root.protocol("WM_DELETE_WINDOW", on_closing)
 
