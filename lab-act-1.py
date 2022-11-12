@@ -348,7 +348,7 @@ def search():
 
     # Search Contact (s in var stands for search contact frame) 
     # Configure the number of rows and columns initially for search contact frame
-    for number in range(20):
+    for number in range(55):
         search_contact.grid_rowconfigure(number, weight=1)
 
     for number in range(5):
@@ -394,18 +394,27 @@ def search():
     s_search_btn = tk.Button(search_contact, text="Search", font=("Arial", 12), bg="#EB6440" ,command=lambda:search_match(s_entry_no_input.get(), s_firstname_input.get(), s_lastname_input.get(), s_number_input.get(), s_address_input.get()))
     s_search_btn.grid(row=4, column=2, sticky="NESW", ipadx=10, padx=30, pady=15)  
 
+    s_back_btn = tk.Button(search_contact, text="Back",bg="#EB6440" ,command=lambda:show_frame(main_menu))
+    s_back_btn.grid(row=55, column=0, sticky="W",ipadx=10, padx=30, pady=15)
+
+
+
     # Full screen to better view the contacts since some informations can be lengthy
     return root.state("zoomed") 
 
 
 
 def search_match(entry_no, firstname, lastname, number, address):
+
     details = [entry_no, firstname, lastname, number, address]
     matches = []
     print(details)
     
+ 
+    search()
+    
     # Ensure an information is entered
-    if entry_no.isspace() or firstname.isspace() or lastname.isspace() or number.isspace() or address.isspace():
+    if entry_no.isspace() and firstname.isspace() and lastname.isspace() and number.isspace() and address.isspace():
         return messagebox.showerror(title="Error", message="Enter information to search.") 
     if not entry_no and not firstname and not lastname and not number and not address:
         return messagebox.showerror(title="Error", message="Enter detail(s) to search.") 
@@ -431,8 +440,7 @@ def search_match(entry_no, firstname, lastname, number, address):
                 if entry_no > number_of_entries_in_db:
                         return messagebox.showerror(title="Error", message="No matches.\n(entry no. doesn't exist)") 
 
-                print(db[entry_no - 1])
-                matches.append(db[entry_no - 1])
+                matches.append((entry_no, db[entry_no - 1]))
         
         if detail == firstname:
             if firstname:
@@ -443,10 +451,10 @@ def search_match(entry_no, firstname, lastname, number, address):
                     if character in digits or character in punctuation:
                         return messagebox.showerror(title="Error", message=f"FIRST NAME must NOT contain numbers or punctuations.") 
 
-                for contact in db:
+                for count, contact in enumerate(db, 1):
                     print(contact.get("first name"), firstname)
                     if firstname == contact.get("first name"):
-                        matches.append(contact)   
+                        matches.append((count, contact))   
                 if len(matches) == 0:
                     return messagebox.showerror(title="Error", message=f"No matches.\n(No contact has a first name of '{firstname}'.)") 
 
@@ -454,6 +462,14 @@ def search_match(entry_no, firstname, lastname, number, address):
         # CHECK ERROR AND FIND SAME VALUE FOR LAST NAME AND ADDRESS
 
         # IF MATCHES NOT EMPTY SHOW MATCHING 
+        print(list(enumerate(matches)))
+        if len(matches) > 0:
+            for row, (count, contact) in enumerate(matches):
+                tk.Label(search_contact, text=count, font=("Arial", 12), bg="#EFF5F5").grid(row=row + 5, column=0, sticky="NESW")
+                tk.Label(search_contact, text=contact.get("first name"), font=("Arial", 12), bg="#EFF5F5").grid(row=row + 5, column=1, sticky="NESW")
+                tk.Label(search_contact, text=contact.get("last name"), font=("Arial", 12), bg="#EFF5F5").grid(row=row + 5, column=2, sticky="NESW")
+                tk.Label(search_contact, text=contact.get("contact number"), font=("Arial", 12), bg="#EFF5F5").grid(row=row + 5, column=3, sticky="NESW")
+                tk.Label(search_contact, text=contact.get("address"), font=("Arial", 12), bg="#EFF5F5").grid(row=row + 5, column=4, sticky="NESW")
 
 
 
