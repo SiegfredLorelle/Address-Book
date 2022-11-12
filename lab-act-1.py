@@ -93,7 +93,7 @@ def save_contact():
         # Ensure contact number has only number and some special charachters
         elif detail == "contact number":
             for character in details.get(detail):
-                if character not in digits and character not in "()-/+":
+                if character not in digits and character not in "()-/+ ":
                     return messagebox.showerror(title="Error", message=f"{detail.upper()} must only contain digits.") 
 
     # Compress the address into a single element
@@ -253,7 +253,7 @@ def save_edit():
         # Ensure contact number has only number and some special charachters
         elif detail == "contact number":
             for character in details.get(detail):
-                if character not in digits and character not in "()-/+":
+                if character not in digits and character not in "()-/+ ":
                     return messagebox.showerror(title="Error", message=f"{detail.upper()} must only contain digits.")     
 
     # Capitalize all details for uniformity
@@ -370,7 +370,7 @@ def search():
     s_lastname = tk.Label(search_contact, text="Last Name", font=("Arial", 14), bg="#EFF5F5")
     s_lastname.grid(row=2, column=2, sticky="NESW")
 
-    s_number = tk.Label(search_contact, text="Number", font=("Arial", 14), bg="#EFF5F5")
+    s_number = tk.Label(search_contact, text="Contact Number", font=("Arial", 14), bg="#EFF5F5")
     s_number.grid(row=2, column=3, sticky="NESW")
 
     s_address = tk.Label(search_contact, text="Address", font=("Arial", 14), bg="#EFF5F5")
@@ -444,6 +444,7 @@ def search_match(entry_no, firstname, lastname, number, address):
         
         if detail == firstname:
             if firstname:
+                # Remove unnecessary whitespaces
                 firstname = re.sub(' +', ' ',firstname.strip()).upper()
 
                 # Check if first name is valid
@@ -451,12 +452,68 @@ def search_match(entry_no, firstname, lastname, number, address):
                     if character in digits or character in punctuation:
                         return messagebox.showerror(title="Error", message=f"FIRST NAME must NOT contain numbers or punctuations.") 
 
+                # Check all contact if there is a match
                 for count, contact in enumerate(db, 1):
-                    print(contact.get("first name"), firstname)
                     if firstname == contact.get("first name"):
                         matches.append((count, contact))   
+                
+                # Show error if no matches
                 if len(matches) == 0:
                     return messagebox.showerror(title="Error", message=f"No matches.\n(No contact has a first name of '{firstname}'.)") 
+
+        if detail == lastname:
+            if lastname:
+                # Remove unnecessary whitespaces and capitalize
+                lastname = re.sub(' +', ' ',lastname.strip()).upper()
+
+                # Check if last name is valid
+                for character in lastname:
+                    if character in digits or character in punctuation:
+                        return messagebox.showerror(title="Error", message=f"LAST NAME must NOT contain numbers or punctuations.") 
+
+                # Check all contact if there is a match
+                for count, contact in enumerate(db, 1):
+                    if lastname == contact.get("last name"):
+                        matches.append((count, contact))   
+
+                # Show error if no matches
+                if len(matches) == 0:
+                    return messagebox.showerror(title="Error", message=f"No matches.\n(No contact has a last name of '{lastname}'.)") 
+
+        if detail == number:
+            if number:
+                # Remove unnecessary whitespaces
+                number = re.sub(' +', ' ',number.strip())
+
+                # Check if number is valid
+                for character in number:
+                    if character not in digits and character not in "()-/+ ":
+                        return messagebox.showerror(title="Error", message="CONTACT NUMBER must only contain digits.") 
+
+                # Check all contact if there is a match
+                for count, contact in enumerate(db, 1):
+                    if number == contact.get("contact number"):
+                        matches.append((count, contact))   
+
+                # Show error if no matches
+                if len(matches) == 0:
+                    return messagebox.showerror(title="Error", message=f"No matches.\n(No contact has a contact number of '{number}'.)") 
+
+        if detail == address:
+            if address:
+                # Remove unnecessary whitespaces and capitalize
+                address = re.sub(' +', ' ',address.strip()).upper()
+
+                # Check all contact if there is a match
+                for count, contact in enumerate(db, 1):
+                    if address == contact.get("address"):
+                        matches.append((count, contact))
+
+                # Show error if no matches
+                if len(matches) == 0:
+                    return messagebox.showerror(title="Error", message=f"No matches.\n(No contact has a address of '{address}'.)") 
+
+
 
 
         # CHECK ERROR AND FIND SAME VALUE FOR LAST NAME AND ADDRESS
